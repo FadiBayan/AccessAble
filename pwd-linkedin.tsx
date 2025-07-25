@@ -1,5 +1,5 @@
 import { Header } from "./components/header"
-import { ProfileSidebar } from "./components/profile-sidebar"
+import { NGOProfileSidebar } from "./components/NGOProfileSidebar"
 import { PostCreation } from "./components/post-creation"
 import { FeedPost } from "./components/feed-post"
 import { JobSidebar } from "./components/job-sidebar"
@@ -69,7 +69,7 @@ export default function PWDLinkedIn() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Left Sidebar */}
           <div className="lg:col-span-3">
-            <ProfileSidebar />
+            <NGOProfileSidebar />
           </div>
 
           {/* Main Feed */}

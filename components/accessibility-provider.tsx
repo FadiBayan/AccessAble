@@ -57,17 +57,21 @@ export function AccessibilityProvider({ children }: { children: React.ReactNode 
     // Apply settings to document
     const root = document.documentElement
     
-    // Apply high contrast
+    // Apply high contrast with data attribute for better CSS targeting
     if (settings.highContrast) {
+      root.setAttribute('data-high-contrast', 'true')
       root.classList.add('high-contrast')
     } else {
+      root.removeAttribute('data-high-contrast')
       root.classList.remove('high-contrast')
     }
     
     // Apply large text
     if (settings.largeText) {
+      root.setAttribute('data-large-text', 'true')
       root.classList.add('large-text')
     } else {
+      root.removeAttribute('data-large-text')
       root.classList.remove('large-text')
     }
     

@@ -2,12 +2,16 @@
 
 import { useEffect, useState } from "react"
 import { getSupabaseClient } from "@/lib/supabaseClient";
-const supabase = getSupabaseClient();
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Briefcase, MapPin, Building, Globe, DollarSign, Calendar, Plus } from "lucide-react"
+import { Briefcase, MapPin, Building, Globe, DollarSign, Calendar, Plus, Edit, Trash2 } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+
+import { Switch } from "@/components/ui/switch"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import Link from "next/link"
 import { Header } from "@/components/header"
 
@@ -18,6 +22,7 @@ interface JobPost {
   created_at: string
   author_name: string
   avatar_url?: string
+  user_id: string
   job_metadata?: {
     company_name: string
     location: string
@@ -33,13 +38,49 @@ interface JobPost {
 export default function JobsPage() {
   const [jobPosts, setJobPosts] = useState<JobPost[]>([])
   const [loading, setLoading] = useState(true)
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+  const [editingJobId, setEditingJobId] = useState<string | null>(null)
+  const [editTitle, setEditTitle] = useState("")
+  const [editContent, setEditContent] = useState("")
+  const [editCompanyName, setEditCompanyName] = useState("")
+  const [editLocation, setEditLocation] = useState("")
+  const [editIsRemote, setEditIsRemote] = useState(false)
+  const [editJobType, setEditJobType] = useState("")
+  const [editSalaryRange, setEditSalaryRange] = useState("")
+  const [editDeadline, setEditDeadline] = useState("")
+  const [editApplicationLink, setEditApplicationLink] = useState("")
+  const [editAccessibilityFeatures, setEditAccessibilityFeatures] = useState({
+    screenReaderSupport: false,
+    signLanguageSupport: false,
+    remoteWork: false,
+    flexibleHours: false,
+    assistiveTechnology: false,
+    accessibleOffice: false
+  })
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null)
+  const [mounted, setMounted] = useState(false)
+  const [editJobLoading, setEditJobLoading] = useState(false);
+  const [editJobError, setEditJobError] = useState<string | null>(null);
 
   useEffect(() => {
+    setMounted(true);
+    fetchCurrentUser()
     fetchJobPosts()
   }, [])
 
+  const fetchCurrentUser = async () => {
+    try {
+      const supabase = getSupabaseClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      setCurrentUserId(user?.id || null);
+    } catch (error) {
+      console.error('Error fetching current user:', error);
+    }
+  }
+
   const fetchJobPosts = async () => {
     try {
+      const supabase = getSupabaseClient();
       const { data: postsData, error: postsError } = await supabase
         .from('posts')
         .select('*')
@@ -73,6 +114,7 @@ export default function JobsPage() {
           created_at: post.created_at,
           author_name: profile ? `${profile.first_name} ${profile.last_name}`.trim() : 'Anonymous',
           avatar_url: profile?.avatar_url,
+          user_id: post.user_id,
           job_metadata: post.job_metadata || {}
         }
       }) || []
@@ -84,6 +126,119 @@ export default function JobsPage() {
       setLoading(false)
     }
   }
+
+  const handleEditJob = async (jobId: string) => {
+    if (!editTitle.trim() || !editContent.trim()) return;
+    setEditJobLoading(true);
+    setEditJobError(null);
+    try {
+      const supabase = getSupabaseClient();
+      const { error } = await supabase
+        .from('posts')
+        .update({ 
+          title: editTitle.trim(),
+          content: editContent.trim(),
+          job_metadata: {
+            company_name: editCompanyName.trim(),
+            location: editLocation.trim(),
+            is_remote: editIsRemote,
+            job_type: editJobType.trim(),
+            salary_range: editSalaryRange.trim(),
+            deadline: editDeadline.trim(),
+            application_link: editApplicationLink.trim(),
+            accessibility_features: editAccessibilityFeatures
+          },
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', jobId);
+      if (!error) {
+        setEditingJobId(null);
+        setEditTitle('');
+        setEditContent('');
+        setEditCompanyName('');
+        setEditLocation('');
+        setEditIsRemote(false);
+        setEditJobType('');
+        setEditSalaryRange('');
+        setEditDeadline('');
+        setEditApplicationLink('');
+        setEditAccessibilityFeatures({
+          screenReaderSupport: false,
+          signLanguageSupport: false,
+          remoteWork: false,
+          flexibleHours: false,
+          assistiveTechnology: false,
+          accessibleOffice: false
+        });
+        fetchJobPosts(); // Refresh the list
+      } else {
+        setEditJobError(error.message || 'Error updating job post.');
+      }
+    } catch (error: any) {
+      setEditJobError(error.message || 'Error updating job post.');
+    } finally {
+      setEditJobLoading(false);
+    }
+  };
+
+  const handleDeleteJob = async (jobId: string) => {
+    try {
+      const supabase = getSupabaseClient();
+      const { error } = await supabase
+        .from('posts')
+        .delete()
+        .eq('id', jobId);
+      
+      if (!error) {
+        setShowDeleteConfirm(null);
+        fetchJobPosts(); // Refresh the list
+      }
+    } catch (error) {
+      console.error('Error deleting job:', error);
+    }
+  };
+
+  const startEditJob = (job: JobPost) => {
+    setEditingJobId(job.id);
+    setEditTitle(job.title);
+    setEditContent(job.content);
+    setEditCompanyName(job.job_metadata?.company_name || '');
+    setEditLocation(job.job_metadata?.location || '');
+    setEditIsRemote(job.job_metadata?.is_remote || false);
+    setEditJobType(job.job_metadata?.job_type || '');
+    setEditSalaryRange(job.job_metadata?.salary_range || '');
+    setEditDeadline(job.job_metadata?.deadline || '');
+    setEditApplicationLink(job.job_metadata?.application_link || '');
+    setEditAccessibilityFeatures(job.job_metadata?.accessibility_features || {
+      screenReaderSupport: false,
+      signLanguageSupport: false,
+      remoteWork: false,
+      flexibleHours: false,
+      assistiveTechnology: false,
+      accessibleOffice: false
+    });
+  };
+
+  const cancelEditJob = () => {
+    setEditingJobId(null);
+    setEditTitle('');
+    setEditContent('');
+    setEditCompanyName('');
+    setEditLocation('');
+    setEditIsRemote(false);
+    setEditJobType('');
+    setEditSalaryRange('');
+    setEditDeadline('');
+    setEditApplicationLink('');
+    setEditAccessibilityFeatures({
+      screenReaderSupport: false,
+      signLanguageSupport: false,
+      remoteWork: false,
+      flexibleHours: false,
+      assistiveTechnology: false,
+      accessibleOffice: false
+    });
+  };
 
   const formatTimeAgo = (dateString: string) => {
     const date = new Date(dateString)
@@ -100,6 +255,17 @@ export default function JobsPage() {
     if (diffInWeeks < 4) return `${diffInWeeks} week${diffInWeeks > 1 ? 's' : ''} ago`
     
     return date.toLocaleDateString()
+  }
+
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-cream">
+        <Header />
+        <main id="main-content" className="max-w-6xl mx-auto px-4 py-8">
+          <div className="text-center py-8">Loading...</div>
+        </main>
+      </div>
+    )
   }
 
   if (loading) {
@@ -173,11 +339,213 @@ export default function JobsPage() {
                         )}
                       </div>
                     </div>
+                    {/* Edit/Delete buttons for job owner */}
+                    {currentUserId === job.user_id && (
+                      <div className="flex items-center gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => startEditJob(job)}
+                          aria-label="Edit job"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setShowDeleteConfirm(job.id)}
+                          aria-label="Delete job"
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <p className="text-gray-700 whitespace-pre-wrap">{job.content}</p>
+                                         {editingJobId === job.id ? (
+                       <div className="space-y-4">
+                         {/* Basic Job Information */}
+                         <div className="space-y-3">
+                           <Input
+                             value={editTitle}
+                             onChange={(e) => setEditTitle(e.target.value)}
+                             placeholder="Job title"
+                             className="w-full"
+                             disabled={editJobLoading}
+                           />
+                           <Textarea
+                             value={editContent}
+                             onChange={(e) => setEditContent(e.target.value)}
+                             placeholder="Job description"
+                             className="w-full"
+                             rows={4}
+                             disabled={editJobLoading}
+                           />
+                         </div>
+
+                         {/* Company Information */}
+                         <div className="space-y-3">
+                           <h4 className="font-medium text-gray-700">Company Information</h4>
+                           <Input
+                             value={editCompanyName}
+                             onChange={(e) => setEditCompanyName(e.target.value)}
+                             placeholder="Company name"
+                             className="w-full"
+                           />
+                           <Input
+                             value={editLocation}
+                             onChange={(e) => setEditLocation(e.target.value)}
+                             placeholder="Location"
+                             className="w-full"
+                           />
+                           <div className="flex items-center space-x-2">
+                             <Switch
+                               id="remote-work"
+                               checked={editIsRemote}
+                               onCheckedChange={setEditIsRemote}
+                             />
+                             <label htmlFor="remote-work" className="text-sm font-medium">
+                               Remote work available
+                             </label>
+                           </div>
+                         </div>
+
+                         {/* Job Details */}
+                         <div className="space-y-3">
+                           <h4 className="font-medium text-gray-700">Job Details</h4>
+                           <Select value={editJobType} onValueChange={setEditJobType}>
+                             <SelectTrigger>
+                               <SelectValue placeholder="Select job type" />
+                             </SelectTrigger>
+                             <SelectContent>
+                               <SelectItem value="Full-time">Full-time</SelectItem>
+                               <SelectItem value="Part-time">Part-time</SelectItem>
+                               <SelectItem value="Contract">Contract</SelectItem>
+                               <SelectItem value="Internship">Internship</SelectItem>
+                               <SelectItem value="Freelance">Freelance</SelectItem>
+                             </SelectContent>
+                           </Select>
+                           <Input
+                             value={editSalaryRange}
+                             onChange={(e) => setEditSalaryRange(e.target.value)}
+                             placeholder="Salary range (e.g., $50,000 - $70,000)"
+                             className="w-full"
+                           />
+                           <Input
+                             type="date"
+                             value={editDeadline}
+                             onChange={(e) => setEditDeadline(e.target.value)}
+                             className="w-full"
+                           />
+                           <Input
+                             value={editApplicationLink}
+                             onChange={(e) => setEditApplicationLink(e.target.value)}
+                             placeholder="Application link (URL)"
+                             className="w-full"
+                           />
+                         </div>
+
+                         {/* Accessibility Features */}
+                         <div className="space-y-3">
+                           <h4 className="font-medium text-gray-700">Accessibility Features</h4>
+                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                             <div className="flex items-center space-x-2">
+                               <Switch
+                                 id="screen-reader"
+                                 checked={editAccessibilityFeatures.screenReaderSupport}
+                                 onCheckedChange={(checked) => setEditAccessibilityFeatures(prev => ({
+                                   ...prev,
+                                   screenReaderSupport: checked
+                                 }))}
+                               />
+                               <label htmlFor="screen-reader" className="text-sm">
+                                 Screen Reader Support
+                               </label>
+                             </div>
+                             <div className="flex items-center space-x-2">
+                               <Switch
+                                 id="sign-language"
+                                 checked={editAccessibilityFeatures.signLanguageSupport}
+                                 onCheckedChange={(checked) => setEditAccessibilityFeatures(prev => ({
+                                   ...prev,
+                                   signLanguageSupport: checked
+                                 }))}
+                               />
+                               <label htmlFor="sign-language" className="text-sm">
+                                 Sign Language Support
+                               </label>
+                             </div>
+                             <div className="flex items-center space-x-2">
+                               <Switch
+                                 id="remote-work-feature"
+                                 checked={editAccessibilityFeatures.remoteWork}
+                                 onCheckedChange={(checked) => setEditAccessibilityFeatures(prev => ({
+                                   ...prev,
+                                   remoteWork: checked
+                                 }))}
+                               />
+                               <label htmlFor="remote-work-feature" className="text-sm">
+                                 Remote Work
+                               </label>
+                             </div>
+                             <div className="flex items-center space-x-2">
+                               <Switch
+                                 id="flexible-hours"
+                                 checked={editAccessibilityFeatures.flexibleHours}
+                                 onCheckedChange={(checked) => setEditAccessibilityFeatures(prev => ({
+                                   ...prev,
+                                   flexibleHours: checked
+                                 }))}
+                               />
+                               <label htmlFor="flexible-hours" className="text-sm">
+                                 Flexible Hours
+                               </label>
+                             </div>
+                             <div className="flex items-center space-x-2">
+                               <Switch
+                                 id="assistive-tech"
+                                 checked={editAccessibilityFeatures.assistiveTechnology}
+                                 onCheckedChange={(checked) => setEditAccessibilityFeatures(prev => ({
+                                   ...prev,
+                                   assistiveTechnology: checked
+                                 }))}
+                               />
+                               <label htmlFor="assistive-tech" className="text-sm">
+                                 Assistive Technology
+                               </label>
+                             </div>
+                             <div className="flex items-center space-x-2">
+                               <Switch
+                                 id="accessible-office"
+                                 checked={editAccessibilityFeatures.accessibleOffice}
+                                 onCheckedChange={(checked) => setEditAccessibilityFeatures(prev => ({
+                                   ...prev,
+                                   accessibleOffice: checked
+                                 }))}
+                               />
+                               <label htmlFor="accessible-office" className="text-sm">
+                                 Accessible Office
+                               </label>
+                             </div>
+                           </div>
+                         </div>
+
+                         {/* Action Buttons */}
+                         <div className="flex space-x-2 pt-4">
+                           <Button onClick={() => handleEditJob(job.id)} size="sm" disabled={editJobLoading}>
+                             {editJobLoading ? 'Saving...' : 'Save Changes'}
+                           </Button>
+                           <Button variant="outline" size="sm" onClick={cancelEditJob} disabled={editJobLoading}>
+                             Cancel
+                           </Button>
+                         </div>
+                       </div>
+                     ) : (
+                       <p className="text-gray-700 whitespace-pre-wrap">{job.content}</p>
+                     )}
                     
                     {/* Job Details */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
@@ -249,6 +617,29 @@ export default function JobsPage() {
                     )}
                   </div>
                 </CardContent>
+                
+                {/* Delete Confirmation */}
+                {showDeleteConfirm === job.id && (
+                  <div className="bg-red-50 border border-red-200 p-4 rounded-lg m-4">
+                    <p className="text-red-800 mb-3">Are you sure you want to delete this job post?</p>
+                    <div className="flex space-x-2">
+                      <Button 
+                        variant="destructive" 
+                        size="sm" 
+                        onClick={() => handleDeleteJob(job.id)}
+                      >
+                        Delete
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => setShowDeleteConfirm(null)}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </Card>
             ))
           )}

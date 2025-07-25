@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "../styles/optimized.css";
+import "../styles/high-contrast.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AccessibilityProvider } from "@/components/accessibility-provider";
 

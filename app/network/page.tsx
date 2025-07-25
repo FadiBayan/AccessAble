@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { getSupabaseClient } from "@/lib/supabaseClient";
-const supabase = getSupabaseClient();
 import { Header } from "../../components/header"
 import { Users, UserPlus, MapPin, Briefcase } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -18,6 +17,8 @@ interface UserProfile {
   current_location?: string
   avatar_url?: string
   bio?: string
+  organization_name?: string
+  account_type?: string
 }
 
 export default function NetworkPage() {
@@ -28,6 +29,7 @@ export default function NetworkPage() {
 
   useEffect(() => {
     async function checkAuth() {
+      const supabase = getSupabaseClient();
       const { data: { user }, error } = await supabase.auth.getUser();
       
       if (error || !user) {
@@ -43,9 +45,10 @@ export default function NetworkPage() {
 
   const fetchUsers = async (excludeUserId: string) => {
     try {
+      const supabase = getSupabaseClient();
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, first_name, last_name, job_title, current_location, avatar_url, bio')
+        .select('id, first_name, last_name, job_title, current_location, avatar_url, bio, organization_name, account_type')
         .neq('id', excludeUserId)
         .order('first_name', { ascending: true });
 
@@ -107,12 +110,16 @@ export default function NetworkPage() {
                     <Avatar className="h-16 w-16 ring-2 ring-mustard">
                       <AvatarImage src={user.avatar_url} />
                       <AvatarFallback className="bg-gradient-to-br from-mustard to-forest-green text-white text-lg">
-                        {user.first_name?.[0]}{user.last_name?.[0]}
+                        {user.account_type === 'NGO' || user.account_type === 'NGO / Organization'
+                          ? user.organization_name?.[0] || 'O'
+                          : `${user.first_name?.[0] || ''}${user.last_name?.[0] || ''}`}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1">
                       <h3 className="font-semibold text-charcoal text-lg">
-                        {user.first_name} {user.last_name}
+                        {user.account_type === 'NGO' || user.account_type === 'NGO / Organization'
+                          ? user.organization_name
+                          : `${user.first_name} ${user.last_name}`}
                       </h3>
                       {user.job_title && (
                         <div className="flex items-center text-sm text-gray-600 mb-1">

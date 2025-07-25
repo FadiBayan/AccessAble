@@ -36,7 +36,7 @@ import { useEffect } from 'react';
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAccessibility } from "@/components/accessibility-provider";
-import { ProfileSidebar } from "@/components/profile-sidebar";
+import { UserProfileSidebar } from "@/components/profile/UserProfileSidebar";
 
 interface ProfileData {
   firstName: string;
@@ -73,6 +73,7 @@ export function ProfileEditPage() {
   const [isEditing, setIsEditing] = useState(false)
   const [audioEnabled, setAudioEnabled] = useState(false)
   const [loading, setLoading] = useState(false);
+  const [selectedAvatar, setSelectedAvatar] = useState<File | null>(null);
 
   // 1. Initialize profileData with empty/default values
   const [profileData, setProfileData] = useState<ProfileData>({
@@ -250,6 +251,21 @@ export function ProfileEditPage() {
     setLoading(true);
     const supabase = getSupabaseClient();
     const { data: { user } } = await supabase.auth.getUser();
+    let avatarUrl = profileData.avatarUrl;
+    if (user && selectedAvatar) {
+      // Upload avatar to Supabase Storage
+      const fileExt = selectedAvatar.name.split('.').pop();
+      const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+      const { data, error } = await supabase.storage
+        .from('avatars')
+        .upload(fileName, selectedAvatar);
+      if (!error) {
+        const { data: { publicUrl } } = supabase.storage
+          .from('avatars')
+          .getPublicUrl(fileName);
+        avatarUrl = publicUrl;
+      }
+    }
     if (user) {
       const { error } = await supabase
         .from('profiles')
@@ -275,7 +291,7 @@ export function ProfileEditPage() {
           show_email: profileData.showEmail,
           show_phone: profileData.showPhone,
           profile_visibility: profileData.profileVisibility,
-          avatar_url: profileData.avatarUrl,
+          avatar_url: avatarUrl,
           account_type: profileData.accountType,
           organization_name: profileData.organizationName,
           headquarters_location: profileData.headquartersLocation,
@@ -308,6 +324,8 @@ export function ProfileEditPage() {
     }));
   };
 
+  const isNGO = profileData.accountType === "NGO" || profileData.accountType === "NGO / Organization";
+
   return (
     <div className="min-h-screen bg-background relative">
       {loading && (
@@ -324,45 +342,18 @@ export function ProfileEditPage() {
               <div className="text-2xl font-bold bg-gradient-to-r from-mustard to-forest-green bg-clip-text text-transparent">
                 Access<span className="text-foreground">Able</span>
               </div>
-              <h1 className={`text-xl font-semibold ${highContrast ? 'text-white' : 'text-foreground'}`}>
-                Profile Settings
-              </h1>
+              <h1 className={`text-xl font-semibold ${highContrast ? 'text-white' : 'text-foreground'}`}>Profile Settings</h1>
             </div>
             <div className="flex items-center space-x-3">
               {isEditing ? (
                 <>
-                  <Button
-                    variant="outline"
-                    onClick={() => setIsEditing(false)}
-                    className="border-border text-foreground hover:bg-muted"
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    onClick={handleSave}
-                    className="bg-gradient-to-r from-mustard to-forest-green hover:from-mustard/90 hover:to-forest-green/90 text-white"
-                  >
-                    <Save className="h-4 w-4 mr-2" />
-                    Save Changes
-                  </Button>
+                  <Button variant="outline" onClick={() => setIsEditing(false)} className="border-border text-foreground hover:bg-muted">Cancel</Button>
+                  <Button onClick={handleSave} className="bg-gradient-to-r from-mustard to-forest-green hover:from-mustard/90 hover:to-forest-green/90 text-white"><Save className="h-4 w-4 mr-2" />Save Changes</Button>
                 </>
               ) : (
                 <>
-                  <Link href="/dashboard">
-                    <Button
-                      variant="outline"
-                      className="border-border text-foreground hover:bg-muted"
-                    >
-                      Back to Dashboard
-                    </Button>
-                  </Link>
-                  <Button
-                    onClick={() => setIsEditing(true)}
-                    className="bg-mustard text-black font-bold hover:bg-mustard/90 focus:ring-2 focus:ring-mustard focus:ring-offset-2 transition-colors"
-                  >
-                    <Edit3 className="h-4 w-4 mr-2" />
-                    Edit Profile
-                  </Button>
+                  <Link href="/dashboard"><Button variant="outline" className="border-border text-foreground hover:bg-muted">Back to Dashboard</Button></Link>
+                  <Button onClick={() => setIsEditing(true)} className="bg-mustard text-black font-bold hover:bg-mustard/90 focus:ring-2 focus:ring-mustard focus:ring-offset-2 transition-colors"><Edit3 className="h-4 w-4 mr-2" />Edit Profile</Button>
                 </>
               )}
             </div>
@@ -373,226 +364,231 @@ export function ProfileEditPage() {
       <div className="max-w-6xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
           {/* Left: Profile Picture Card */}
-          <ProfileSidebar showEditButton={false} />
+          <UserProfileSidebar
+            profileData={profileData}
+            showEditButton={false}
+            isEditing={isEditing}
+            onAvatarUpload={handleAvatarUpload}
+          />
           {/* Right: Form Sections - each section in its own Card */}
           <div className="md:col-span-2 space-y-8">
-            {/* Basic Info */}
-            <Card className="bg-white border border-border shadow-lg rounded-2xl p-8">
-              <CardContent className="space-y-6">
-                <h3 className={`text-xl font-bold ${highContrast ? 'text-white' : 'text-foreground'} mb-4`}>Basic Info</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label htmlFor="firstName">First Name</label>
-                    <Input id="firstName" value={profileData.firstName} onChange={(e) => setProfileData((prev) => ({ ...prev, firstName: e.target.value }))} disabled={!isEditing} />
-                  </div>
-                  <div className="space-y-2">
-                    <label htmlFor="lastName">Last Name</label>
-                    <Input id="lastName" value={profileData.lastName} onChange={(e) => setProfileData((prev) => ({ ...prev, lastName: e.target.value }))} disabled={!isEditing} />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            {/* Professional Details */}
-            <Card className="bg-white border border-border shadow-lg rounded-2xl p-8">
-              <CardContent className="space-y-6">
-                <h3 className={`text-xl font-bold ${highContrast ? 'text-white' : 'text-foreground'} mb-4`}>Professional Details</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label htmlFor="title">Professional Title</label>
-                    <Input id="title" value={profileData.title} onChange={(e) => setProfileData((prev) => ({ ...prev, title: e.target.value }))} disabled={!isEditing} />
-                  </div>
-                  <div className="space-y-2">
-                    <label htmlFor="company">Company</label>
-                    <Input id="company" value={profileData.company} onChange={(e) => setProfileData((prev) => ({ ...prev, company: e.target.value }))} disabled={!isEditing} />
-                  </div>
-                  <div className="space-y-2">
-                    <label htmlFor="location">Location</label>
-                    <Input id="location" value={profileData.location} onChange={(e) => setProfileData((prev) => ({ ...prev, location: e.target.value }))} disabled={!isEditing} />
-                  </div>
-                  <div className="space-y-2">
-                    <label htmlFor="bio">Professional Summary</label>
-                    <Textarea id="bio" value={profileData.bio} onChange={(e) => setProfileData((prev) => ({ ...prev, bio: e.target.value }))} disabled={!isEditing} placeholder="Tell us about your work experience, achievements, or mission." />
-                  </div>
-                  <div className="space-y-2">
-                    <label htmlFor="website">Website</label>
-                    <Input id="website" value={profileData.website} onChange={(e) => setProfileData((prev) => ({ ...prev, website: e.target.value }))} disabled={!isEditing} placeholder="Add a website to boost your visibility." />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            {/* Contact Information */}
-            <Card className="bg-white border border-border shadow-lg rounded-2xl p-8">
-              <CardContent className="space-y-6">
-                <h3 className={`text-xl font-bold ${highContrast ? 'text-white' : 'text-foreground'} mb-4`}>Contact Information</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label htmlFor="email">Email Address</label>
-                    <Input id="email" type="email" value={profileData.email} onChange={(e) => setProfileData((prev) => ({ ...prev, email: e.target.value }))} disabled={!isEditing} />
-                  </div>
-                  <div className="space-y-2">
-                    <label htmlFor="phone">Phone Number</label>
-                    <Input id="phone" type="tel" value={profileData.phone} onChange={(e) => setProfileData((prev) => ({ ...prev, phone: e.target.value }))} disabled={!isEditing} />
-                  </div>
-                  <div className="space-y-2 md:col-span-2">
-                    <label htmlFor="website">Website</label>
-                    <Input id="website" value={profileData.website} onChange={(e) => setProfileData((prev) => ({ ...prev, website: e.target.value }))} disabled={!isEditing} placeholder="www.yourwebsite.com" />
-                  </div>
-                  <div className="space-y-2 md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-6">
+            {isNGO ? (
+              // NGO/Organization Edit Page
+              <>
+                <Card className="bg-white border border-border shadow-lg rounded-2xl p-8">
+                  <CardContent className="space-y-6">
+                    <h3 className={`text-xl font-bold ${highContrast ? 'text-white' : 'text-foreground'} mb-4`}>Organization Info</h3>
                     <div className="space-y-2">
-                      <label htmlFor="linkedin">LinkedIn</label>
-                      <Input id="linkedin" value={profileData.linkedin} onChange={(e) => setProfileData((prev) => ({ ...prev, linkedin: e.target.value }))} disabled={!isEditing} placeholder="linkedin.com/in/username" />
+                      <label htmlFor="organizationName">Organization Name</label>
+                      <Input id="organizationName" value={profileData.organizationName} onChange={e => setProfileData(prev => ({ ...prev, organizationName: e.target.value }))} disabled={!isEditing} />
                     </div>
                     <div className="space-y-2">
-                      <label htmlFor="twitter">Twitter</label>
-                      <Input id="twitter" value={profileData.twitter} onChange={(e) => setProfileData((prev) => ({ ...prev, twitter: e.target.value }))} disabled={!isEditing} placeholder="@username" />
+                      <label htmlFor="website">Website</label>
+                      <Input id="website" value={profileData.website} onChange={e => setProfileData(prev => ({ ...prev, website: e.target.value }))} disabled={!isEditing} />
                     </div>
                     <div className="space-y-2">
-                      <label htmlFor="github">GitHub</label>
-                      <Input id="github" value={profileData.github} onChange={(e) => setProfileData((prev) => ({ ...prev, github: e.target.value }))} disabled={!isEditing} placeholder="github.com/username" />
+                      <label htmlFor="headquartersLocation">Headquarters Location</label>
+                      <Input id="headquartersLocation" value={profileData.headquartersLocation} onChange={e => setProfileData(prev => ({ ...prev, headquartersLocation: e.target.value }))} disabled={!isEditing} />
                     </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            {/* Professional Status */}
-            <Card className="bg-white border border-border shadow-lg rounded-2xl p-8">
-              <CardContent className="space-y-6">
-                <h3 className={`text-xl font-bold ${highContrast ? 'text-white' : 'text-foreground'} mb-4`}>Professional Status</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label htmlFor="availability">Availability</label>
-                    <select value={profileData.availability} onChange={e => setProfileData(prev => ({ ...prev, availability: e.target.value }))} disabled={!isEditing} className={`w-full px-4 py-3 border border-border rounded-xl bg-white text-base text-foreground focus:ring-2 focus:ring-mustard focus:border-mustard transition-all${highContrast ? ' bg-[#23272f] text-white' : ''}`}>
-                      <option value="">Select availability</option>
-                      <option value="open-to-work">Open to Work</option>
-                      <option value="employed">Employed</option>
-                      <option value="freelancing">Freelancing</option>
-                    </select>
-                  </div>
-                  <div className="space-y-2">
-                    <label htmlFor="workType">Preferred Work Type</label>
-                    <select value={profileData.workType} onChange={e => setProfileData(prev => ({ ...prev, workType: e.target.value }))} disabled={!isEditing} className={`w-full px-4 py-3 border border-border rounded-xl bg-white text-base text-foreground focus:ring-2 focus:ring-mustard focus:border-mustard transition-all${highContrast ? ' bg-[#23272f] text-white' : ''}`}>
-                      <option value="">Select work type</option>
-                      <option value="remote">Remote</option>
-                      <option value="hybrid">Hybrid</option>
-                      <option value="onsite">On-site</option>
-                      <option value="flexible">Flexible</option>
-                    </select>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            {/* Accessibility Needs & Accommodations */}
-            <Card className="bg-white border border-border shadow-lg rounded-2xl p-8">
-              <CardContent className="space-y-6">
-                <h3 className={`text-xl font-bold ${highContrast ? 'text-white' : 'text-foreground'} mb-4`}>Accessibility Needs & Accommodations</h3>
-                <div className="space-y-2">
-                  <label>My Accessibility Needs</label>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {accessibilityOptions.map((option) => (
-                      <div
-                        key={option.id}
-                        className={`flex items-center space-x-3 p-3 rounded-lg border cursor-pointer transition-all ${
-                          (profileData.accessibilityNeeds || []).includes(option.id)
-                            ? highContrast
-                              ? "bg-mustard/20 border-mustard"
-                              : "bg-mustard/10 border-mustard"
-                            : highContrast
+                    <div className="space-y-2">
+                      <label htmlFor="missionStatement">Mission Statement</label>
+                      <Textarea id="missionStatement" value={profileData.missionStatement} onChange={e => setProfileData(prev => ({ ...prev, missionStatement: e.target.value }))} disabled={!isEditing} rows={3} placeholder="e.g., Empowering individuals with disabilities through technology." />
+                    </div>
+                    <div className="space-y-2">
+                      <label htmlFor="contactEmail">Contact Email</label>
+                      <Input id="contactEmail" value={profileData.email} onChange={e => setProfileData(prev => ({ ...prev, email: e.target.value }))} disabled={!isEditing} />
+                    </div>
+                    <div className="space-y-2">
+                      <label htmlFor="description">Description / Type of Services</label>
+                      <Textarea id="description" value={profileData.bio} onChange={e => setProfileData(prev => ({ ...prev, bio: e.target.value }))} disabled={!isEditing} rows={3} placeholder="Describe your organization or services" />
+                    </div>
+                    <div className="space-y-2">
+                      <label>Logo / Cover Image</label>
+                      <Input type="file" accept="image/*" onChange={handleAvatarUpload} disabled={!isEditing} />
+                      {profileData.avatarUrl && (
+                        <Avatar className="h-24 w-24 mt-2">
+                          <AvatarImage src={profileData.avatarUrl} alt="Organization Logo" />
+                          <AvatarFallback>Logo</AvatarFallback>
+                        </Avatar>
+                      )}
+                    </div>
+                    <div>
+                      <label>Accessibility Features</label>
+                      <div className="flex flex-wrap gap-2">
+                        {[
+                          "Screen Reader Support", 
+                          "Sign Language Support", 
+                          "Assistive Technology Provided", 
+                          "Remote Work Options", 
+                          "Flexible Hours", 
+                          "Accessible Office Space"
+                        ].map(feature => {
+                          const selected = profileData.accessibilityFeatures.includes(feature);
+                          return (
+                            <button
+                              key={feature}
+                              type="button"
+                              className={`px-4 py-2 rounded-full border text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-mustard focus:ring-offset-2
+                                ${selected ? 'bg-mustard text-white border-mustard' : 'bg-white text-charcoal border-gray-300 hover:bg-mustard/10'}
+                                ${!isEditing ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
+                              onClick={() => {
+                                if (!isEditing) return;
+                                setProfileData(prev => ({
+                                  ...prev,
+                                  accessibilityFeatures: selected
+                                    ? prev.accessibilityFeatures.filter(f => f !== feature)
+                                    : [...prev.accessibilityFeatures, feature]
+                                }))
+                              }}
+                              disabled={!isEditing}
+                              aria-pressed={selected}
+                            >
+                              {feature}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <label>Open to Collaboration</label>
+                      <input
+                        type="checkbox"
+                        checked={profileData.openToCollaboration}
+                        onChange={e => setProfileData(prev => ({ ...prev, openToCollaboration: e.target.checked }))}
+                        disabled={!isEditing}
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+              </>
+            ) : (
+              // Regular User Edit Page
+              <>
+                {/* Basic Info */}
+                <Card className="bg-white border border-border shadow-lg rounded-2xl p-8">
+                  <CardContent className="space-y-6">
+                    <h3 className={`text-xl font-bold ${highContrast ? 'text-white' : 'text-foreground'} mb-4`}>Basic Info</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <label htmlFor="firstName">First Name</label>
+                        <Input id="firstName" value={profileData.firstName} onChange={(e) => setProfileData((prev) => ({ ...prev, firstName: e.target.value }))} disabled={!isEditing} />
+                      </div>
+                      <div className="space-y-2">
+                        <label htmlFor="lastName">Last Name</label>
+                        <Input id="lastName" value={profileData.lastName} onChange={(e) => setProfileData((prev) => ({ ...prev, lastName: e.target.value }))} disabled={!isEditing} />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                {/* Professional Details */}
+                <Card className="bg-white border border-border shadow-lg rounded-2xl p-8">
+                  <CardContent className="space-y-6">
+                    <h3 className={`text-xl font-bold ${highContrast ? 'text-white' : 'text-foreground'} mb-4`}>Professional Details</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <label htmlFor="title">Title</label>
+                        <Input id="title" value={profileData.title} onChange={(e) => setProfileData((prev) => ({ ...prev, title: e.target.value }))} disabled={!isEditing} />
+                      </div>
+                      <div className="space-y-2">
+                        <label htmlFor="company">Company</label>
+                        <Input id="company" value={profileData.company} onChange={(e) => setProfileData((prev) => ({ ...prev, company: e.target.value }))} disabled={!isEditing} />
+                      </div>
+                      <div className="space-y-2">
+                        <label htmlFor="location">Location</label>
+                        <Input id="location" value={profileData.location} onChange={(e) => setProfileData((prev) => ({ ...prev, location: e.target.value }))} disabled={!isEditing} />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <label htmlFor="bio">Bio</label>
+                      <Textarea id="bio" value={profileData.bio} onChange={(e) => setProfileData((prev) => ({ ...prev, bio: e.target.value }))} disabled={!isEditing} rows={3} placeholder="Tell us about yourself" />
+                    </div>
+                  </CardContent>
+                </Card>
+                {/* Contact & Social */}
+                <Card className="bg-white border border-border shadow-lg rounded-2xl p-8">
+                  <CardContent className="space-y-6">
+                    <h3 className={`text-xl font-bold ${highContrast ? 'text-white' : 'text-foreground'} mb-4`}>Contact & Social</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <label htmlFor="email">Email</label>
+                        <Input id="email" value={profileData.email} onChange={(e) => setProfileData((prev) => ({ ...prev, email: e.target.value }))} disabled={!isEditing} />
+                      </div>
+                      <div className="space-y-2">
+                        <label htmlFor="phone">Phone</label>
+                        <Input id="phone" value={profileData.phone} onChange={(e) => setProfileData((prev) => ({ ...prev, phone: e.target.value }))} disabled={!isEditing} />
+                      </div>
+                      <div className="space-y-2">
+                        <label htmlFor="website">Website</label>
+                        <Input id="website" value={profileData.website} onChange={(e) => setProfileData((prev) => ({ ...prev, website: e.target.value }))} disabled={!isEditing} />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div className="space-y-2">
+                        <label htmlFor="linkedin">LinkedIn</label>
+                        <Input id="linkedin" value={profileData.linkedin} onChange={(e) => setProfileData((prev) => ({ ...prev, linkedin: e.target.value }))} disabled={!isEditing} />
+                      </div>
+                      <div className="space-y-2">
+                        <label htmlFor="twitter">Twitter</label>
+                        <Input id="twitter" value={profileData.twitter} onChange={(e) => setProfileData((prev) => ({ ...prev, twitter: e.target.value }))} disabled={!isEditing} />
+                      </div>
+                      <div className="space-y-2">
+                        <label htmlFor="github">GitHub</label>
+                        <Input id="github" value={profileData.github} onChange={(e) => setProfileData((prev) => ({ ...prev, github: e.target.value }))} disabled={!isEditing} />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                {/* Accessibility & Preferences */}
+                <Card className="bg-white border border-border shadow-lg rounded-2xl p-8">
+                  <CardContent className="space-y-6">
+                    <h3 className={`text-xl font-bold ${highContrast ? 'text-white' : 'text-foreground'} mb-4`}>Accessibility & Preferences</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {accessibilityOptions.map((option) => (
+                        <div
+                          key={option.id}
+                          className={`flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer transition-colors select-none border
+                            ${highContrast
                               ? "bg-gray-800 border-gray-600 hover:bg-gray-700"
                               : "bg-background border-border hover:bg-mustard/5"
-                        }`}
-                        onClick={() => isEditing && handleAccessibilityToggle(option.id)}
-                      >
-                        <Checkbox
-                          checked={(profileData.accessibilityNeeds || []).includes(option.id)}
-                          onCheckedChange={() => isEditing && handleAccessibilityToggle(option.id)}
-                          disabled={!isEditing}
-                          aria-label={`Select ${option.label}`}
-                        />
-                        <option.icon
-                          className={`
-                            h-5 w-5 ${
-                              (profileData.accessibilityNeeds || []).includes(option.id)
-                              ? "text-mustard"
-                              : highContrast
-                                ? "text-gray-400"
-                                : "text-gray-500"
-                            }
-                          `}
-                        />
-                        <span
+                            }`}
+                          onClick={() => isEditing && handleAccessibilityToggle(option.id)}
                         >
-                          {option.label}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label htmlFor="accommodations">Required Accommodations</label>
-                  <Textarea id="accommodations" value={profileData.accommodations} onChange={(e) => setProfileData((prev) => ({ ...prev, accommodations: e.target.value }))} disabled={!isEditing} rows={3} placeholder="e.g., Flexible work hours, specialized software, ergonomic equipment" />
-                </div>
-              </CardContent>
-            </Card>
-            {/* Organization Details (if applicable) */}
-            { (profileData.accountType === "Company" || profileData.accountType === "NGO") && (
-              <Card className="bg-white border border-border shadow-lg rounded-2xl p-8">
-                <CardContent className="space-y-6">
-                  <h3 className={`text-xl font-bold ${highContrast ? 'text-white' : 'text-foreground'} mb-4`}>Organization Details</h3>
-                  <label htmlFor="organizationName">Organization Name</label>
-                  <Input id="organizationName" value={profileData.organizationName} onChange={e => setProfileData(prev => ({ ...prev, organizationName: e.target.value }))} disabled={!isEditing} />
-                  <label htmlFor="website">Website</label>
-                  <Input id="website" value={profileData.website} onChange={e => setProfileData(prev => ({ ...prev, website: e.target.value }))} disabled={!isEditing} />
-                  <label htmlFor="headquartersLocation">Headquarters Location</label>
-                  <Input id="headquartersLocation" value={profileData.headquartersLocation} onChange={e => setProfileData(prev => ({ ...prev, headquartersLocation: e.target.value }))} disabled={!isEditing} />
-                  <label htmlFor="missionStatement">Mission Statement</label>
-                  <Textarea id="missionStatement" value={profileData.missionStatement} onChange={e => setProfileData(prev => ({ ...prev, missionStatement: e.target.value }))} disabled={!isEditing} rows={3} placeholder="e.g., Empowering individuals with disabilities through technology." />
-                  <div>
-                    <label>Accessibility Features</label>
-                    <div className="flex flex-wrap gap-2">
-                      {["Screen Reader Support", "Sign Language Support", "Assistive Technology Provided", "Remote Work Options", "Flexible Hours", "Accessible Office Space"].map(feature => (
-                        <label key={feature} className="flex items-center gap-1">
-                          <input
-                            type="checkbox"
-                            checked={profileData.accessibilityFeatures.includes(feature)}
-                            onChange={e => {
-                              setProfileData(prev => ({
-                                ...prev,
-                                accessibilityFeatures: e.target.checked
-                                  ? [...prev.accessibilityFeatures, feature]
-                                  : prev.accessibilityFeatures.filter(f => f !== feature)
-                              }))
-                            }}
+                          <Checkbox
+                            checked={(profileData.accessibilityNeeds || []).includes(option.id)}
+                            onCheckedChange={() => isEditing && handleAccessibilityToggle(option.id)}
                             disabled={!isEditing}
+                            aria-label={`Select ${option.label}`}
                           />
-                          <span className="text-card-foreground">{feature}</span>
-                        </label>
+                          <option.icon
+                            className={
+                              `h-5 w-5 ${
+                                (profileData.accessibilityNeeds || []).includes(option.id)
+                                  ? "text-mustard"
+                                  : highContrast
+                                    ? "text-gray-400"
+                                    : "text-gray-500"
+                              }`
+                            }
+                          />
+                          <span>{option.label}</span>
+                        </div>
                       ))}
                     </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <label>Open to Collaboration</label>
-                    <input
-                      type="checkbox"
-                      checked={profileData.openToCollaboration}
-                      onChange={e => setProfileData(prev => ({ ...prev, openToCollaboration: e.target.checked }))}
-                      disabled={!isEditing}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
+                    <div className="space-y-2">
+                      <label htmlFor="accommodations">Required Accommodations</label>
+                      <Textarea id="accommodations" value={profileData.accommodations} onChange={(e) => setProfileData((prev) => ({ ...prev, accommodations: e.target.value }))} disabled={!isEditing} rows={3} placeholder="e.g., Flexible work hours, specialized software, ergonomic equipment" />
+                    </div>
+                  </CardContent>
+                </Card>
+              </>
+            )}
+            {profileSaved && (
+              <div className="text-center mt-8">
+                <Button className="bg-mustard hover:bg-forest-green text-white font-medium" onClick={() => router.push("/dashboard")}>Go to Dashboard</Button>
+              </div>
             )}
           </div>
         </div>
-        {profileSaved && (
-          <div className="text-center mt-8">
-            <Button
-              className="bg-mustard hover:bg-forest-green text-white font-medium"
-              onClick={() => router.push("/dashboard")}
-            >
-              Go to Dashboard
-            </Button>
-          </div>
-        )}
       </div>
     </div>
   );
