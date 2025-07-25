@@ -3,7 +3,6 @@
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { getSupabaseClient } from "@/lib/supabaseClient";
-const supabase = getSupabaseClient();
 import { Header } from "../../components/header"
 import { Bell } from "lucide-react"
 
@@ -12,6 +11,7 @@ export default function NotificationsPage() {
 
   useEffect(() => {
     async function checkAuth() {
+      const supabase = getSupabaseClient();
       const { data: { user }, error } = await supabase.auth.getUser();
       
       if (error || !user) {

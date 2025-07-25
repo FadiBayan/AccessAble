@@ -61,65 +61,77 @@ export function AccessibilitySettingsModal({ isOpen, onClose }: AccessibilitySet
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden">
-        <DialogHeader className="flex-shrink-0">
-          <DialogTitle className="text-xl font-semibold text-charcoal">
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden dialog-content">
+        <DialogHeader className="flex-shrink-0 dialog-header">
+          <DialogTitle className="text-xl font-semibold text-charcoal dialog-title">
             Accessibility Settings
           </DialogTitle>
         </DialogHeader>
         
-        <div className="overflow-y-auto max-h-[calc(80vh-80px)] pr-2 space-y-6">
+        <div className="overflow-y-auto max-h-[calc(80vh-80px)] pr-2 space-y-8 p-6">
           {/* Visual Accessibility */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium text-charcoal flex items-center">
-              <Eye className="h-5 w-5 mr-2 text-mustard" aria-hidden="true" />
+          <div className="space-y-6">
+            <h3 className="text-lg font-medium text-charcoal flex items-center gap-3">
+              <Eye className="h-5 w-5 text-mustard" aria-hidden="true" />
               Visual Accessibility
             </h3>
             
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <Contrast className="h-4 w-4 text-mustard" aria-hidden="true" />
-                  <label htmlFor="high-contrast" className="text-sm">High Contrast</label>
+            <div className="space-y-6 pl-8">
+              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <div className="flex items-center space-x-3">
+                  <Contrast className="h-5 w-5 text-mustard" aria-hidden="true" />
+                  <div>
+                    <label htmlFor="high-contrast" className="text-sm font-medium">High Contrast</label>
+                    <p className="text-xs text-gray-600 mt-1">Enhanced color contrast for better visibility</p>
+                  </div>
                 </div>
                 <Switch
                   id="high-contrast"
                   checked={settings.highContrast}
                   onCheckedChange={handleHighContrast}
                   aria-label="Toggle high contrast mode"
+                  className="switch"
                 />
               </div>
 
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <Type className="h-4 w-4 text-mustard" aria-hidden="true" />
-                  <label htmlFor="large-text" className="text-sm">Large Text</label>
+              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <div className="flex items-center space-x-3">
+                  <Type className="h-5 w-5 text-mustard" aria-hidden="true" />
+                  <div>
+                    <label htmlFor="large-text" className="text-sm font-medium">Large Text</label>
+                    <p className="text-xs text-gray-600 mt-1">Increase text size for better readability</p>
+                  </div>
                 </div>
                 <Switch
                   id="large-text"
                   checked={settings.largeText}
                   onCheckedChange={handleLargeText}
                   aria-label="Toggle large text mode"
+                  className="switch"
                 />
               </div>
 
-              <div className="space-y-2">
-                <div className="flex items-center space-x-2">
-                  <ZoomIn className="h-4 w-4 text-mustard" aria-hidden="true" />
-                  <label className="text-sm">Zoom Level: {settings.zoomLevel}%</label>
+              <div className="space-y-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <div className="flex items-center space-x-3">
+                  <ZoomIn className="h-5 w-5 text-mustard" aria-hidden="true" />
+                  <div>
+                    <label className="text-sm font-medium">Zoom Level: {settings.zoomLevel}%</label>
+                    <p className="text-xs text-gray-600 mt-1">Adjust the overall zoom level of the interface</p>
+                  </div>
                 </div>
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-4">
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={() => handleZoom(Math.max(settings.zoomLevel - 10, 50))}
                     aria-label="Decrease zoom level by 10%"
+                    className="btn"
                   >
-                    <ZoomOut className="h-3 w-3" aria-hidden="true" />
+                    <ZoomOut className="h-4 w-4" aria-hidden="true" />
                   </Button>
-                  <div className="flex-1 h-2 bg-gray-200 rounded" role="progressbar" aria-valuenow={settings.zoomLevel} aria-valuemin={50} aria-valuemax={200} aria-label="Zoom level slider">
+                  <div className="flex-1 h-3 bg-gray-200 rounded-full slider-track" role="progressbar" aria-valuenow={settings.zoomLevel} aria-valuemin={50} aria-valuemax={200} aria-label="Zoom level slider">
                     <div 
-                      className="h-full bg-mustard rounded transition-all"
+                      className="h-full bg-mustard rounded-full transition-all slider-range"
                       style={{ width: `${((settings.zoomLevel - 50) / 150) * 100}%` }}
                     />
                   </div>
@@ -128,8 +140,9 @@ export function AccessibilitySettingsModal({ isOpen, onClose }: AccessibilitySet
                     variant="outline"
                     onClick={() => handleZoom(Math.min(settings.zoomLevel + 10, 200))}
                     aria-label="Increase zoom level by 10%"
+                    className="btn"
                   >
-                    <ZoomIn className="h-3 w-3" aria-hidden="true" />
+                    <ZoomIn className="h-4 w-4" aria-hidden="true" />
                   </Button>
                 </div>
               </div>
@@ -139,87 +152,112 @@ export function AccessibilitySettingsModal({ isOpen, onClose }: AccessibilitySet
           </div>
 
           {/* Audio Accessibility */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium text-charcoal flex items-center">
-              <Ear className="h-5 w-5 mr-2 text-mustard" aria-hidden="true" />
+          <div className="space-y-6">
+            <h3 className="text-lg font-medium text-charcoal flex items-center gap-3">
+              <Ear className="h-5 w-5 text-mustard" aria-hidden="true" />
               Audio Accessibility
             </h3>
             
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                {settings.audioEnabled ? (
-                  <Volume2 className="h-4 w-4 text-mustard" aria-hidden="true" />
-                ) : (
-                  <VolumeX className="h-4 w-4 text-mustard" aria-hidden="true" />
-                )}
-                <label htmlFor="audio" className="text-sm">Audio</label>
+            <div className="pl-8">
+              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <div className="flex items-center space-x-3">
+                  {settings.audioEnabled ? (
+                    <Volume2 className="h-5 w-5 text-mustard" aria-hidden="true" />
+                  ) : (
+                    <VolumeX className="h-5 w-5 text-mustard" aria-hidden="true" />
+                  )}
+                  <div>
+                    <label htmlFor="audio" className="text-sm font-medium">Audio</label>
+                    <p className="text-xs text-gray-600 mt-1">Enable audio feedback and notifications</p>
+                  </div>
+                </div>
+                <Switch
+                  id="audio"
+                  checked={settings.audioEnabled}
+                  onCheckedChange={handleAudio}
+                  aria-label="Toggle audio accessibility features"
+                  className="switch"
+                />
               </div>
-              <Switch
-                id="audio"
-                checked={settings.audioEnabled}
-                onCheckedChange={handleAudio}
-                aria-label="Toggle audio accessibility features"
-              />
             </div>
           </div>
 
           {/* Disability Profile */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium text-charcoal">Disability Profile</h3>
-            <p className="text-sm text-gray-600">
+          <div className="space-y-6">
+            <h3 className="text-lg font-medium text-charcoal flex items-center gap-3">
+              <Brain className="h-5 w-5 text-mustard" aria-hidden="true" />
+              Disability Profile
+            </h3>
+            <p className="text-sm text-gray-600 pl-8">
               Help us personalize your experience by sharing your accessibility needs.
             </p>
             
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <Eye className="h-4 w-4 text-mustard" aria-hidden="true" />
-                  <label htmlFor="visual-impairment" className="text-sm">Visual Impairment</label>
+            <div className="space-y-4 pl-8">
+              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <div className="flex items-center space-x-3">
+                  <Eye className="h-5 w-5 text-mustard" aria-hidden="true" />
+                  <div>
+                    <label htmlFor="visual-impairment" className="text-sm font-medium">Visual Impairment</label>
+                    <p className="text-xs text-gray-600 mt-1">Optimize for visual accessibility needs</p>
+                  </div>
                 </div>
                 <Switch
                   id="visual-impairment"
                   checked={settings.visualImpairment}
                   onCheckedChange={(enabled) => handleDisabilityToggle('visualImpairment', enabled)}
                   aria-label="Toggle visual impairment accommodation"
+                  className="switch"
                 />
               </div>
 
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <Ear className="h-4 w-4 text-mustard" aria-hidden="true" />
-                  <label htmlFor="hearing-impairment" className="text-sm">Hearing Impairment</label>
+              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <div className="flex items-center space-x-3">
+                  <Ear className="h-5 w-5 text-mustard" aria-hidden="true" />
+                  <div>
+                    <label htmlFor="hearing-impairment" className="text-sm font-medium">Hearing Impairment</label>
+                    <p className="text-xs text-gray-600 mt-1">Optimize for hearing accessibility needs</p>
+                  </div>
                 </div>
                 <Switch
                   id="hearing-impairment"
                   checked={settings.hearingImpairment}
                   onCheckedChange={(enabled) => handleDisabilityToggle('hearingImpairment', enabled)}
                   aria-label="Toggle hearing impairment accommodation"
+                  className="switch"
                 />
               </div>
 
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <Hand className="h-4 w-4 text-mustard" aria-hidden="true" />
-                  <label htmlFor="motor-impairment" className="text-sm">Motor Impairment</label>
+              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <div className="flex items-center space-x-3">
+                  <Hand className="h-5 w-5 text-mustard" aria-hidden="true" />
+                  <div>
+                    <label htmlFor="motor-impairment" className="text-sm font-medium">Motor Impairment</label>
+                    <p className="text-xs text-gray-600 mt-1">Optimize for motor accessibility needs</p>
+                  </div>
                 </div>
                 <Switch
                   id="motor-impairment"
                   checked={settings.motorImpairment}
                   onCheckedChange={(enabled) => handleDisabilityToggle('motorImpairment', enabled)}
                   aria-label="Toggle motor impairment accommodation"
+                  className="switch"
                 />
               </div>
 
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <Brain className="h-4 w-4 text-mustard" aria-hidden="true" />
-                  <label htmlFor="cognitive-impairment" className="text-sm">Cognitive Impairment</label>
+              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <div className="flex items-center space-x-3">
+                  <Brain className="h-5 w-5 text-mustard" aria-hidden="true" />
+                  <div>
+                    <label htmlFor="cognitive-impairment" className="text-sm font-medium">Cognitive Impairment</label>
+                    <p className="text-xs text-gray-600 mt-1">Optimize for cognitive accessibility needs</p>
+                  </div>
                 </div>
                 <Switch
                   id="cognitive-impairment"
                   checked={settings.cognitiveImpairment}
                   onCheckedChange={(enabled) => handleDisabilityToggle('cognitiveImpairment', enabled)}
                   aria-label="Toggle cognitive impairment accommodation"
+                  className="switch"
                 />
               </div>
             </div>

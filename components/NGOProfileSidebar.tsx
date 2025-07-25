@@ -94,12 +94,11 @@ export function NGOProfileSidebar({ showEditButton = true, isEditing = false }: 
       </CardContent>
     </Card>
   );
-  const displayName = (profile?.account_type === "NGO")
+  const isNGO = profile?.account_type === "NGO" || profile?.account_type === "NGO / Organization";
+  const displayName = isNGO
     ? profile?.organization_name || "Organization"
     : `${profile?.first_name || ''} ${profile?.last_name || ''}`.trim() || "User";
-  const displayTitle = (profile?.account_type === "NGO" || profile?.account_type === "NGO / Organization")
-    ? profile?.organization_name || "Organization"
-    : profile?.title;
+  const displayTitle = isNGO ? undefined : profile?.title;
   return (
     <Card className={`shadow-md rounded-xl overflow-hidden ${highContrast ? 'bg-[#1f2937] text-white border border-white/10' : 'bg-white text-charcoal'}`}>
       <CardHeader className="relative p-0">
@@ -131,7 +130,7 @@ export function NGOProfileSidebar({ showEditButton = true, isEditing = false }: 
       </CardHeader>
       <CardContent className="p-4 pt-16 text-center">
         <h2 className={`text-xl font-bold ${highContrast ? 'text-white' : 'text-charcoal'}`}>{displayName}</h2>
-        <p className={`text-sm mb-4 ${highContrast ? 'text-gray-200' : 'text-gray-600'}`}>{displayTitle}</p>
+        {displayTitle && <p className={`text-sm mb-4 ${highContrast ? 'text-gray-200' : 'text-gray-600'}`}>{displayTitle}</p>}
         <div className="flex justify-around text-center mb-4">
           <div>
             <p className={`text-sm font-semibold ${highContrast ? 'text-white' : 'text-charcoal'}`}>{followers}</p>
@@ -161,7 +160,7 @@ export function NGOProfileSidebar({ showEditButton = true, isEditing = false }: 
               {need === "visual" && <Eye className="h-4 w-4 text-indigo" />}
               {need === "hearing" && <Volume2 className="h-4 w-4 text-indigo" />}
               {/* Add more icons as needed */}
-              <span className="text-sm">{need.replace(/^\\w/, c => c.toUpperCase())} Impairment</span>
+              <span className="text-sm">{need.replace(/^\w/, c => c.toUpperCase())} Impairment</span>
             </div>
           ))}
           {(profile?.accessibility_needs || []).length === 0 && (
@@ -171,4 +170,4 @@ export function NGOProfileSidebar({ showEditButton = true, isEditing = false }: 
       </CardContent>
     </Card>
   );
-}
+} 

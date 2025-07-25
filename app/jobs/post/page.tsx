@@ -9,7 +9,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowLeft, Briefcase, Building, MapPin, Globe, DollarSign, Calendar, Accessibility } from "lucide-react"
 import { getSupabaseClient } from "@/lib/supabaseClient";
-const supabase = getSupabaseClient();
 import { filterContent, hasBadWords } from "@/lib/content-filter"
 import Link from "next/link"
 import { Header } from "@/components/header"
@@ -50,6 +49,7 @@ export default function PostJobPage() {
     e.preventDefault()
     setLoading(true)
 
+    const supabase = getSupabaseClient();
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
       alert("You must be logged in to post a job.")

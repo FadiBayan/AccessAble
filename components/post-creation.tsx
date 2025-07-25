@@ -46,6 +46,7 @@ export function PostCreation() {
 
   const handlePost = async () => {
     setLoading(true);
+    const supabase = getSupabaseClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       alert("You must be logged in to post.");
@@ -146,30 +147,24 @@ export function PostCreation() {
           <Loader2 className="animate-spin h-8 w-8 text-mustard" />
         </div>
       )}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-        <div className="flex items-start space-x-4">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 mb-6">
+        <div className="flex items-start gap-4">
+          {/* Profile Picture */}
           <div className="flex-shrink-0">
             <div className="w-10 h-10 bg-gradient-to-br from-mustard to-forest-green rounded-full flex items-center justify-center text-white font-semibold text-sm">
               ME
             </div>
           </div>
+          {/* Post Input and Actions */}
           <div className="flex-1 min-w-0">
-            <Input
-              placeholder="Title (optional)"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className={`flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ${highContrast ? "placeholder:text-gray-100 text-white" : ""} focus:ring-2 focus:ring-mustard focus:ring-offset-2 transition-colors`}
-              aria-label="Post title"
-            />
             <Textarea
               placeholder="Share an accessible post, article, or opportunity..."
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              className={`flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ${highContrast ? "placeholder:text-gray-100 text-white" : ""} focus:ring-2 focus:ring-mustard focus:ring-offset-2 transition-colors`}
+              className={`w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm min-h-[60px] resize-none focus:min-h-[100px] focus:py-4 focus:px-5 focus:shadow-md focus:outline-none focus:ring-2 focus:ring-yellow-400 transition-all ${highContrast ? "placeholder:text-gray-100 text-white" : ""}`}
               rows={3}
               aria-label="Post content"
             />
-            
             {/* Media Preview */}
             {imageUrl && (
               <div className="mb-3">
@@ -180,7 +175,6 @@ export function PostCreation() {
                 />
               </div>
             )}
-            
             {videoUrl && (
               <div className="mb-3">
                 <video
@@ -190,18 +184,17 @@ export function PostCreation() {
                 />
               </div>
             )}
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant="ghost"
-                  className="flex items-center space-x-2 text-gray-600 hover:bg-mustard/10 hover:text-mustard"
-                  onClick={() => fileInputRef.current?.click()}
+            {/* Actions Row */}
+            <div className="flex items-center justify-between mt-2">
+              <div className="flex items-center gap-2">
+                <button
                   type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex items-center gap-2 text-sm text-gray-600 hover:bg-gray-100 px-3 py-2 rounded-md transition focus:outline-none focus:ring-2 focus:ring-yellow-400"
                   aria-label="Add photo"
                 >
                   <ImageIcon className="h-5 w-5" />
-                  <span className="hidden sm:inline">Photo</span>
+                  <span>Photo</span>
                   <input
                     type="file"
                     accept="image/*"
@@ -209,16 +202,15 @@ export function PostCreation() {
                     style={{ display: "none" }}
                     onChange={handleImageChange}
                   />
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="flex items-center space-x-2 text-gray-600 hover:bg-mustard/10 hover:text-mustard"
-                  onClick={() => videoInputRef.current?.click()}
+                </button>
+                <button
                   type="button"
+                  onClick={() => videoInputRef.current?.click()}
+                  className="flex items-center gap-2 text-sm text-gray-600 hover:bg-gray-100 px-3 py-2 rounded-md transition focus:outline-none focus:ring-2 focus:ring-yellow-400"
                   aria-label="Add video"
                 >
                   <Video className="h-5 w-5" />
-                  <span className="hidden sm:inline">Video</span>
+                  <span>Video</span>
                   <input
                     type="file"
                     accept="video/*"
@@ -226,25 +218,26 @@ export function PostCreation() {
                     style={{ display: "none" }}
                     onChange={handleVideoChange}
                   />
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="flex items-center space-x-2 text-gray-600 hover:bg-mustard/10 hover:text-mustard"
+                </button>
+                <button
+                  type="button"
                   disabled
+                  className="flex items-center gap-2 text-sm text-gray-600 hover:bg-gray-100 px-3 py-2 rounded-md transition focus:outline-none focus:ring-2 focus:ring-yellow-400"
                   aria-label="Add audio (coming soon)"
                 >
                   <Mic className="h-5 w-5" />
-                  <span className="hidden sm:inline">Audio</span>
-                </Button>
+                  <span>Audio</span>
+                </button>
               </div>
-              <Button
+              <button
                 onClick={handlePost}
-                disabled={loading || (!title.trim() && !content.trim())}
-                className="bg-mustard hover:bg-forest-green text-white"
+                disabled={loading || !content.trim()}
+                className="bg-yellow-400 hover:bg-yellow-500 text-white p-2 rounded-full transition focus:outline-none focus:ring-2 focus:ring-yellow-500"
                 aria-label="Create post"
+                type="button"
               >
-                {loading ? "Posting..." : <Send className="h-4 w-4" />}
-              </Button>
+                {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
+              </button>
             </div>
           </div>
         </div>
