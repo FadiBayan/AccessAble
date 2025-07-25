@@ -31,10 +31,10 @@ export default function DashboardPage() {
   // Prevent hydration mismatch by not rendering until mounted
   if (!mounted) {
     return (
-      <div className="min-h-screen bg-cream flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="animate-spin h-12 w-12 text-mustard mx-auto mb-4" />
-          <p className="text-gray-600">Loading...</p>
+          <p className="text-muted-foreground">Loading...</p>
         </div>
       </div>
     );
@@ -42,17 +42,17 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-cream flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="animate-spin h-12 w-12 text-mustard mx-auto mb-4" />
-          <p className="text-gray-600">Loading dashboard...</p>
+          <p className="text-muted-foreground">Loading dashboard...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-cream relative">
+    <div className="min-h-screen bg-background relative">
       <Header />
       <div className="max-w-7xl mx-auto px-4 py-6">
         <div className="grid min-w-0 flex-wrap grid-cols-1 md:grid-cols-4 gap-6">
@@ -69,9 +69,9 @@ export default function DashboardPage() {
 
           {/* Right Sidebar */}
           <div className="lg:col-span-1">
-            <div className="bg-yellow-50 rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-charcoal mb-4">Recommended Jobs</h3>
-              <div className="text-center py-8 text-gray-500">
+            <div className="bg-muted rounded-lg shadow-sm border border-border p-6">
+              <h3 className="text-lg font-semibold text-foreground mb-4">Recommended Jobs</h3>
+              <div className="text-center py-8 text-muted-foreground">
                 <p className="text-sm">AI-powered job recommendations</p>
                 <p className="text-xs mt-2">Coming soon...</p>
               </div>

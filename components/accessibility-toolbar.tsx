@@ -9,7 +9,8 @@ import {
   VolumeX, 
   ZoomIn, 
   ZoomOut,
-  Accessibility
+  Accessibility,
+  Moon
 } from "lucide-react"
 import { Switch } from "@/components/ui/switch"
 
@@ -71,14 +72,14 @@ export function AccessibilityToolbar({
           <h3 className="font-semibold text-charcoal mb-3">Accessibility Settings</h3>
           
           <div className="space-y-4">
-            {/* High Contrast */}
+            {/* Dark Mode */}
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
-                <Contrast className="h-4 w-4 text-mustard" />
-                <label htmlFor="high-contrast" className="text-sm">High Contrast</label>
+                <Moon className="h-4 w-4 text-mustard" />
+                <label htmlFor="dark-mode" className="text-sm">Dark Mode</label>
               </div>
               <Switch
-                id="high-contrast"
+                id="dark-mode"
                 checked={highContrast}
                 onCheckedChange={handleHighContrast}
               />

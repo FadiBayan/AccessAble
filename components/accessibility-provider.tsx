@@ -57,13 +57,13 @@ export function AccessibilityProvider({ children }: { children: React.ReactNode 
     // Apply settings to document
     const root = document.documentElement
     
-    // Apply high contrast with data attribute for better CSS targeting
+    // Apply dark mode (using highContrast setting as dark mode toggle)
     if (settings.highContrast) {
-      root.setAttribute('data-high-contrast', 'true')
-      root.classList.add('high-contrast')
+      root.classList.add('dark')
+      root.setAttribute('data-theme', 'dark')
     } else {
-      root.removeAttribute('data-high-contrast')
-      root.classList.remove('high-contrast')
+      root.classList.remove('dark')
+      root.setAttribute('data-theme', 'light')
     }
     
     // Apply large text
@@ -77,9 +77,6 @@ export function AccessibilityProvider({ children }: { children: React.ReactNode 
     
     // Apply zoom level
     root.style.fontSize = `${settings.zoomLevel}%`
-    
-    // Apply theme
-    root.setAttribute('data-theme', settings.theme)
     
   }, [settings])
 

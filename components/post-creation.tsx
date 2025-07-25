@@ -143,11 +143,11 @@ export function PostCreation() {
   return (
     <div className="relative">
       {loading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-white/70 z-50">
+        <div className="absolute inset-0 flex items-center justify-center bg-background/70 z-50">
           <Loader2 className="animate-spin h-8 w-8 text-mustard" />
         </div>
       )}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 mb-6">
+      <div className="bg-card rounded-xl shadow-sm border border-border p-5 mb-6">
         <div className="flex items-start gap-4">
           {/* Profile Picture */}
           <div className="flex-shrink-0">
@@ -161,7 +161,7 @@ export function PostCreation() {
               placeholder="Share an accessible post, article, or opportunity..."
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              className={`w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm min-h-[60px] resize-none focus:min-h-[100px] focus:py-4 focus:px-5 focus:shadow-md focus:outline-none focus:ring-2 focus:ring-yellow-400 transition-all ${highContrast ? "placeholder:text-gray-100 text-white" : ""}`}
+              className="w-full bg-background border border-input rounded-xl px-4 py-3 text-sm min-h-[60px] resize-none focus:min-h-[100px] focus:py-4 focus:px-5 focus:shadow-md focus:outline-none focus:ring-2 focus:ring-yellow-400 transition-all text-foreground placeholder:text-muted-foreground"
               rows={3}
               aria-label="Post content"
             />
@@ -190,7 +190,7 @@ export function PostCreation() {
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="flex items-center gap-2 text-sm text-gray-600 hover:bg-gray-100 px-3 py-2 rounded-md transition focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                  className="flex items-center gap-2 text-sm text-muted-foreground hover:bg-accent px-3 py-2 rounded-md transition focus:outline-none focus:ring-2 focus:ring-yellow-400"
                   aria-label="Add photo"
                 >
                   <ImageIcon className="h-5 w-5" />
@@ -206,7 +206,7 @@ export function PostCreation() {
                 <button
                   type="button"
                   onClick={() => videoInputRef.current?.click()}
-                  className="flex items-center gap-2 text-sm text-gray-600 hover:bg-gray-100 px-3 py-2 rounded-md transition focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                  className="flex items-center gap-2 text-sm text-muted-foreground hover:bg-accent px-3 py-2 rounded-md transition focus:outline-none focus:ring-2 focus:ring-yellow-400"
                   aria-label="Add video"
                 >
                   <Video className="h-5 w-5" />
@@ -222,7 +222,7 @@ export function PostCreation() {
                 <button
                   type="button"
                   disabled
-                  className="flex items-center gap-2 text-sm text-gray-600 hover:bg-gray-100 px-3 py-2 rounded-md transition focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                  className="flex items-center gap-2 text-sm text-muted-foreground hover:bg-accent px-3 py-2 rounded-md transition focus:outline-none focus:ring-2 focus:ring-yellow-400"
                   aria-label="Add audio (coming soon)"
                 >
                   <Mic className="h-5 w-5" />

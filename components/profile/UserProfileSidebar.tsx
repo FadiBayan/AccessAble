@@ -32,7 +32,7 @@ export function UserProfileSidebar({ profileData, isEditing, onAvatarUpload }: P
   };
 
   return (
-    <Card className="shadow-md rounded-xl overflow-hidden bg-white text-charcoal">
+    <Card className="shadow-md rounded-xl overflow-hidden bg-card text-foreground">
       <CardHeader className="relative p-0">
         <div className="h-20 bg-gradient-to-r from-mustard to-forest-green" />
         <div className="absolute top-8 left-1/2 -translate-x-1/2 group cursor-pointer" onClick={handleAvatarClick} tabIndex={isEditing ? 0 : -1} aria-label={isEditing ? 'Change profile photo' : undefined} role="button">
@@ -59,8 +59,8 @@ export function UserProfileSidebar({ profileData, isEditing, onAvatarUpload }: P
         </div>
       </CardHeader>
       <CardContent className="pt-16 pb-6 text-center">
-        <div className="text-xl font-bold text-center mb-1">{name}</div>
-        {subtitle && <div className="text-sm text-gray-500 text-center mb-2">{subtitle}</div>}
+        <div className="text-xl font-bold text-center mb-1 text-foreground">{name}</div>
+        {subtitle && <div className="text-sm text-muted-foreground text-center mb-2">{subtitle}</div>}
       </CardContent>
     </Card>
   );

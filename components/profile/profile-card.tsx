@@ -17,7 +17,12 @@ export function ProfileCard({ avatarUrl, name, subtitle, isEditing = false, onAv
   if (compact) {
     // Compact horizontal layout for post feed
     return (
-      <div className="flex items-center gap-2">
+      <div
+        className="flex items-center gap-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-mustard rounded-full transition-shadow hover:shadow-md"
+        tabIndex={0}
+        role="link"
+        aria-label={`View ${name}'s profile`}
+      >
         <Avatar className="w-10 h-10 rounded-full ring-2 ring-mustard">
           <AvatarImage src={avatarUrl || '/placeholder-user.jpg'} alt={name} />
           <AvatarFallback>{name[0]}</AvatarFallback>
@@ -31,7 +36,7 @@ export function ProfileCard({ avatarUrl, name, subtitle, isEditing = false, onAv
   }
   // Default large card for profile pages
   return (
-    <Card className="p-5 space-y-2 rounded-xl shadow-md bg-white hover:shadow-lg transition w-full flex flex-col items-center">
+    <Card className="p-5 space-y-2 rounded-xl shadow-md bg-card hover:shadow-lg transition w-full flex flex-col items-center">
       <div className="flex flex-col items-center gap-3">
         <Avatar className="w-24 h-24 rounded-full ring-2 ring-mustard hover:ring-4 transition-all cursor-pointer mb-2">
           <AvatarImage src={avatarUrl || '/placeholder-user.jpg'} alt={name} />
@@ -45,8 +50,8 @@ export function ProfileCard({ avatarUrl, name, subtitle, isEditing = false, onAv
             className="mb-2"
           />
         )}
-        <div className="text-xl font-bold text-center">{name}</div>
-        {subtitle && <div className="text-sm text-gray-500 text-center">{subtitle}</div>}
+        <div className="text-xl font-bold text-center text-foreground">{name}</div>
+        {subtitle && <div className="text-sm text-muted-foreground text-center">{subtitle}</div>}
       </div>
     </Card>
   );

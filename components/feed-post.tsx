@@ -542,7 +542,7 @@ export function FeedPost({
   };
 
   return (
-    <Card className="p-5 space-y-2 rounded-xl shadow-md bg-white hover:shadow-lg transition">
+    <Card className="p-5 space-y-2 rounded-xl shadow-md bg-card hover:shadow-lg transition">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -561,24 +561,24 @@ export function FeedPost({
           <div className="relative ml-2" ref={dropdownRef}>
             <button
               aria-label="Post options"
-              className="hover:bg-gray-100 p-2 rounded-full transition focus:outline-none focus:ring-2 focus:ring-mustard"
+              className="hover:bg-accent p-2 rounded-full transition focus:outline-none focus:ring-2 focus:ring-mustard"
               onClick={() => setDropdownOpen((open) => !open)}
               tabIndex={0}
             >
-              <MoreHorizontal className="h-5 w-5 text-gray-500" aria-hidden="true" />
+              <MoreHorizontal className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
             </button>
             {dropdownOpen && (
-              <div className="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+              <div className="absolute right-0 mt-2 w-32 bg-card border border-border rounded-lg shadow-lg z-10">
                 <button
                   onClick={() => { setIsEditing(true); setEditTitle(title); setEditContent(content); setDropdownOpen(false); }}
-                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 focus:bg-gray-100 rounded-t-lg"
+                  className="w-full text-left px-4 py-2 text-sm hover:bg-accent focus:bg-accent rounded-t-lg text-foreground"
                   aria-label="Edit post"
                 >
                   <Edit className="h-4 w-4 mr-2 inline-block align-text-bottom" /> Edit
                 </button>
                 <button
                   onClick={() => { setShowDeleteConfirm(!showDeleteConfirm); setDropdownOpen(false); }}
-                  className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 focus:bg-gray-100 rounded-b-lg"
+                  className="w-full text-left px-4 py-2 text-sm text-destructive hover:bg-accent focus:bg-accent rounded-b-lg"
                   aria-label="Delete post"
                 >
                   <Trash2 className="h-4 w-4 mr-2 inline-block align-text-bottom" /> Delete
@@ -596,7 +596,7 @@ export function FeedPost({
               type="text"
               value={editTitle}
               onChange={e => setEditTitle(e.target.value)}
-              className="w-full border rounded px-3 py-2 text-base font-semibold mb-1 focus:outline-none focus:ring-2 focus:ring-mustard"
+              className="w-full border border-input rounded px-3 py-2 text-base font-semibold mb-1 focus:outline-none focus:ring-2 focus:ring-mustard bg-background text-foreground"
               placeholder="Title"
               aria-label="Edit post title"
               disabled={editPostLoading}
@@ -604,13 +604,13 @@ export function FeedPost({
             <textarea
               value={editContent}
               onChange={e => setEditContent(e.target.value)}
-              className="w-full border rounded px-3 py-2 text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-mustard"
+              className="w-full border border-input rounded px-3 py-2 text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-mustard bg-background text-foreground"
               placeholder="Content"
               aria-label="Edit post content"
               rows={3}
               disabled={editPostLoading}
             />
-            {editPostError && <div className="text-red-500 text-sm">{editPostError}</div>}
+            {editPostError && <div className="text-destructive text-sm">{editPostError}</div>}
             <div className="flex gap-2 mt-2">
               <button
                 onClick={handleEditPost}
@@ -622,7 +622,7 @@ export function FeedPost({
               </button>
               <button
                 onClick={() => { setIsEditing(false); setEditTitle(title); setEditContent(content); }}
-                className="bg-gray-100 text-gray-700 px-4 py-1 rounded-full font-semibold hover:bg-gray-200 transition focus:outline-none focus:ring-2 focus:ring-gray-400"
+                className="bg-muted text-muted-foreground px-4 py-1 rounded-full font-semibold hover:bg-accent transition focus:outline-none focus:ring-2 focus:ring-muted-foreground"
                 aria-label="Cancel editing post"
                 disabled={editPostLoading}
               >
@@ -632,8 +632,8 @@ export function FeedPost({
           </div>
         ) : (
           <>
-            {title && <div className="font-semibold text-base mb-1">{title}</div>}
-            <div className="text-sm leading-relaxed">{content}</div>
+            {title && <div className="font-semibold text-base mb-1 text-foreground">{title}</div>}
+            <div className="text-sm leading-relaxed text-foreground">{content}</div>
             {imageUrl && (
               <div className="mb-3">
                 <img 
@@ -663,11 +663,11 @@ export function FeedPost({
         )}
       </div>
       {/* Footer */}
-      <div className="border-t pt-2 mt-2 flex justify-between items-center text-sm text-gray-600">
+      <div className="border-t border-border pt-2 mt-2 flex justify-between items-center text-sm text-muted-foreground">
         <button
           onClick={handleLike}
           disabled={likeInProgress}
-          className={`flex items-center gap-1 text-sm text-gray-600 px-2 py-1 hover:bg-gray-100 rounded-full transition focus:outline-none focus:ring-2 focus:ring-mustard ${userLiked ? 'text-mustard' : 'text-gray-600'}`}
+          className={`flex items-center gap-1 text-sm px-2 py-1 hover:bg-accent rounded-full transition focus:outline-none focus:ring-2 focus:ring-mustard ${userLiked ? 'text-mustard' : 'text-muted-foreground'}`}
           aria-label={`${userLiked ? 'Unlike' : 'Like'} this post. ${likeCount} likes`}
           aria-pressed={userLiked}
         >
@@ -677,7 +677,7 @@ export function FeedPost({
         </button>
         <button
           onClick={toggleComments}
-          className="flex items-center gap-1 text-sm text-gray-600 px-2 py-1 hover:bg-gray-100 rounded-full transition focus:outline-none focus:ring-2 focus:ring-mustard"
+          className="flex items-center gap-1 text-sm text-muted-foreground px-2 py-1 hover:bg-accent rounded-full transition focus:outline-none focus:ring-2 focus:ring-mustard"
           aria-label={`${showComments ? 'Hide' : 'Show'} comments. ${commentCount} comments`}
           aria-expanded={showComments}
         >
@@ -687,14 +687,14 @@ export function FeedPost({
         </button>
         <button
           onClick={handleShare}
-          className="flex items-center gap-1 text-sm text-gray-600 px-2 py-1 hover:bg-gray-100 rounded-full transition focus:outline-none focus:ring-2 focus:ring-mustard"
+          className="flex items-center gap-1 text-sm text-muted-foreground px-2 py-1 hover:bg-accent rounded-full transition focus:outline-none focus:ring-2 focus:ring-mustard"
           aria-label="Share this post."
         >
           <Share2 className="h-5 w-5" aria-hidden="true" />
           <span className="ml-1">Share</span>
         </button>
       </div>
-      {/* Comments Section (unchanged) */}
+      {/* Comments Section */}
       {showComments && (
         <div className="mt-4 space-y-3">
           <div className="flex space-x-2">
@@ -702,7 +702,7 @@ export function FeedPost({
               value={commentText}
               onChange={(e) => setCommentText(e.target.value)}
               placeholder="Write a comment..."
-              className="flex-1"
+              className="flex-1 bg-background border border-input text-foreground placeholder:text-muted-foreground"
               rows={2}
             />
             <Button onClick={handleComment} disabled={!commentText.trim()} aria-label="Post comment">
@@ -711,11 +711,11 @@ export function FeedPost({
           </div>
           <div className="space-y-2">
             {postComments.map((comment) => (
-              <div key={comment.id} className="bg-gray-50 p-3 rounded-lg">
+              <div key={comment.id} className="bg-muted p-3 rounded-lg">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
-                    <span className="font-medium text-sm">{comment.author_name}</span>
-                    <span className="text-xs text-gray-500">{new Date(comment.created_at).toLocaleString()}</span>
+                    <span className="font-medium text-sm text-foreground">{comment.author_name}</span>
+                    <span className="text-xs text-muted-foreground">{new Date(comment.created_at).toLocaleString()}</span>
                   </div>
                   {(currentUserId === comment.user_id || isOwnPost) && (
                     <div className="flex items-center gap-1">
@@ -725,7 +725,7 @@ export function FeedPost({
                           size="icon"
                           onClick={() => startEditComment(comment)}
                           aria-label="Edit this comment"
-                          className="hover:bg-gray-100 p-1 rounded-full transition focus:outline-none focus:ring-2 focus:ring-mustard text-gray-500"
+                          className="hover:bg-accent p-1 rounded-full transition focus:outline-none focus:ring-2 focus:ring-mustard text-muted-foreground"
                         >
                           <Edit className="h-4 w-4" aria-hidden="true" />
                         </Button>
@@ -734,7 +734,7 @@ export function FeedPost({
                         variant="ghost"
                         size="icon"
                         onClick={() => handleDeleteComment(comment.id, comment.user_id)}
-                        className="hover:bg-gray-100 p-1 rounded-full transition focus:outline-none focus:ring-2 focus:ring-red-400 text-red-500"
+                        className="hover:bg-accent p-1 rounded-full transition focus:outline-none focus:ring-2 focus:ring-red-400 text-destructive"
                         aria-label="Delete this comment"
                       >
                         <Trash2 className="h-4 w-4" aria-hidden="true" />
@@ -747,33 +747,27 @@ export function FeedPost({
                     <Input
                       value={editingCommentText}
                       onChange={(e) => setEditingCommentText(e.target.value)}
-                      className="flex-1"
-                      placeholder="Edit comment..."
-                      disabled={editCommentLoading}
+                      className="flex-1 bg-background border border-input text-foreground"
                     />
                     <Button
-                      variant="outline"
-                      size="sm"
                       onClick={() => handleEditComment(comment.id)}
-                      disabled={!editingCommentText.trim() || editCommentLoading}
-                      aria-label="Save edited comment"
+                      disabled={editCommentLoading}
+                      className="bg-mustard text-white px-3 py-1 rounded text-sm"
                     >
-                      {editCommentLoading ? <span>Saving...</span> : <Save className="h-3 w-3" aria-hidden="true" />}
+                      {editCommentLoading ? 'Saving...' : 'Save'}
                     </Button>
                     <Button
-                      variant="outline"
-                      size="sm"
                       onClick={cancelEditComment}
-                      aria-label="Cancel editing comment"
-                      disabled={editCommentLoading}
+                      variant="outline"
+                      className="px-3 py-1 rounded text-sm"
                     >
-                      <X className="h-3 w-3" aria-hidden="true" />
+                      Cancel
                     </Button>
-                    {editCommentError && <div className="text-red-500 text-xs ml-2">{editCommentError}</div>}
                   </div>
                 ) : (
-                  <p className="text-sm mt-1">{comment.content}</p>
+                  <div className="text-sm text-foreground mt-2">{comment.content}</div>
                 )}
+                {editCommentError && <div className="text-destructive text-xs mt-1">{editCommentError}</div>}
               </div>
             ))}
           </div>

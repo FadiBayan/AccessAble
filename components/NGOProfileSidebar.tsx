@@ -12,7 +12,6 @@ import { useAccessibility } from "@/components/accessibility-provider";
 
 export function NGOProfileSidebar({ showEditButton = true, isEditing = false }: { showEditButton?: boolean, isEditing?: boolean }) {
   const { settings } = useAccessibility();
-  const highContrast = settings.highContrast;
   const [profile, setProfile] = useState<any>(null);
   const [followers, setFollowers] = useState(0);
   const [following, setFollowing] = useState(0);
@@ -76,20 +75,20 @@ export function NGOProfileSidebar({ showEditButton = true, isEditing = false }: 
   };
 
   if (loading) return (
-    <Card className="bg-white shadow-md rounded-lg overflow-hidden">
+    <Card className="bg-card shadow-md rounded-lg overflow-hidden">
       <CardContent className="p-4">
         <div className="flex items-center justify-center py-8">
           <RefreshCw className="h-6 w-6 animate-spin text-mustard" />
-          <span className="ml-2 text-gray-600">Loading profile...</span>
+          <span className="ml-2 text-muted-foreground">Loading profile...</span>
         </div>
       </CardContent>
     </Card>
   );
   if (!profile) return (
-    <Card className="bg-white shadow-md rounded-lg overflow-hidden">
+    <Card className="bg-card shadow-md rounded-lg overflow-hidden">
       <CardContent className="p-4">
         <div className="text-center py-8">
-          <p className="text-gray-600">Profile not found</p>
+          <p className="text-muted-foreground">Profile not found</p>
         </div>
       </CardContent>
     </Card>
@@ -100,7 +99,7 @@ export function NGOProfileSidebar({ showEditButton = true, isEditing = false }: 
     : `${profile?.first_name || ''} ${profile?.last_name || ''}`.trim() || "User";
   const displayTitle = isNGO ? undefined : profile?.title;
   return (
-    <Card className={`shadow-md rounded-xl overflow-hidden ${highContrast ? 'bg-[#1f2937] text-white border border-white/10' : 'bg-white text-charcoal'}`}>
+    <Card className="shadow-md rounded-xl overflow-hidden bg-card text-foreground">
       <CardHeader className="relative p-0">
         <div className="h-20 bg-gradient-to-r from-mustard to-forest-green" />
         <div className="absolute top-8 left-1/2 -translate-x-1/2 group cursor-pointer" onClick={handleAvatarClick} tabIndex={isEditing ? 0 : -1} aria-label={isEditing ? 'Change profile photo' : undefined} role="button">
@@ -129,34 +128,34 @@ export function NGOProfileSidebar({ showEditButton = true, isEditing = false }: 
         </div>
       </CardHeader>
       <CardContent className="p-4 pt-16 text-center">
-        <h2 className={`text-xl font-bold ${highContrast ? 'text-white' : 'text-charcoal'}`}>{displayName}</h2>
-        {displayTitle && <p className={`text-sm mb-4 ${highContrast ? 'text-gray-200' : 'text-gray-600'}`}>{displayTitle}</p>}
+        <h2 className="text-xl font-bold text-foreground">{displayName}</h2>
+        {displayTitle && <p className="text-sm mb-4 text-muted-foreground">{displayTitle}</p>}
         <div className="flex justify-around text-center mb-4">
           <div>
-            <p className={`text-sm font-semibold ${highContrast ? 'text-white' : 'text-charcoal'}`}>{followers}</p>
-            <p className={`text-xs ${highContrast ? 'text-gray-400' : 'text-gray-500'}`}>Followers</p>
+            <p className="text-sm font-semibold text-foreground">{followers}</p>
+            <p className="text-xs text-muted-foreground">Followers</p>
           </div>
           <div>
-            <p className={`text-sm font-semibold ${highContrast ? 'text-white' : 'text-charcoal'}`}>{following}</p>
-            <p className={`text-xs ${highContrast ? 'text-gray-400' : 'text-gray-500'}`}>Following</p>
+            <p className="text-sm font-semibold text-foreground">{following}</p>
+            <p className="text-xs text-muted-foreground">Following</p>
           </div>
         </div>
         {showEditButton && (
           <Link href="/profile">
-            <Button className={`w-full ${highContrast ? 'bg-yellow-400 text-black hover:bg-yellow-500 transition' : 'bg-mustard hover:bg-forest-green text-white font-medium'}`}>
+            <Button className="w-full bg-mustard hover:bg-forest-green text-white font-medium">
               <Edit className="h-4 w-4 mr-2" />
               Edit Profile
             </Button>
           </Link>
         )}
         <Separator className="my-4" />
-        <CardTitle className={`text-lg font-bold mb-3 flex items-center justify-center ${highContrast ? 'text-white' : 'text-charcoal'}`}>
+        <CardTitle className="text-lg font-bold mb-3 flex items-center justify-center text-foreground">
           <Accessibility className="h-5 w-5 mr-2 text-mustard" />
           Accessibility Profile
         </CardTitle>
         <div className="space-y-2">
           {(profile?.accessibility_needs || []).map((need: string) => (
-            <div key={need} className={`flex items-center justify-center space-x-2 ${highContrast ? 'text-gray-200' : 'text-gray-700'}`}>
+            <div key={need} className="flex items-center justify-center space-x-2 text-foreground">
               {need === "visual" && <Eye className="h-4 w-4 text-indigo" />}
               {need === "hearing" && <Volume2 className="h-4 w-4 text-indigo" />}
               {/* Add more icons as needed */}
@@ -164,7 +163,7 @@ export function NGOProfileSidebar({ showEditButton = true, isEditing = false }: 
             </div>
           ))}
           {(profile?.accessibility_needs || []).length === 0 && (
-            <p className={`text-sm text-center ${highContrast ? 'text-gray-400' : 'text-gray-500'}`}>No accessibility needs specified</p>
+            <p className="text-sm text-center text-muted-foreground">No accessibility needs specified</p>
           )}
         </div>
       </CardContent>

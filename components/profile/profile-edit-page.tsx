@@ -122,7 +122,7 @@ export function ProfileEditPage() {
   const router = useRouter();
   const [profileSaved, setProfileSaved] = useState(false);
   const { settings } = useAccessibility();
-  const highContrast = settings.highContrast;
+  const isDarkMode = settings.highContrast; // Using highContrast setting for dark mode
 
   const accessibilityOptions = [
     { id: "visual", label: "Visual Impairment", icon: Eye },
@@ -342,7 +342,7 @@ export function ProfileEditPage() {
               <div className="text-2xl font-bold bg-gradient-to-r from-mustard to-forest-green bg-clip-text text-transparent">
                 Access<span className="text-foreground">Able</span>
               </div>
-              <h1 className={`text-xl font-semibold ${highContrast ? 'text-white' : 'text-foreground'}`}>Profile Settings</h1>
+              <h1 className="text-xl font-semibold text-foreground">Profile Settings</h1>
             </div>
             <div className="flex items-center space-x-3">
               {isEditing ? (
@@ -375,9 +375,9 @@ export function ProfileEditPage() {
             {isNGO ? (
               // NGO/Organization Edit Page
               <>
-                <Card className="bg-white border border-border shadow-lg rounded-2xl p-8">
+                <Card className="bg-card border border-border shadow-lg rounded-2xl p-8">
                   <CardContent className="space-y-6">
-                    <h3 className={`text-xl font-bold ${highContrast ? 'text-white' : 'text-foreground'} mb-4`}>Organization Info</h3>
+                    <h3 className="text-xl font-bold text-foreground mb-4">Organization Info</h3>
                     <div className="space-y-2">
                       <label htmlFor="organizationName">Organization Name</label>
                       <Input id="organizationName" value={profileData.organizationName} onChange={e => setProfileData(prev => ({ ...prev, organizationName: e.target.value }))} disabled={!isEditing} />
@@ -465,9 +465,9 @@ export function ProfileEditPage() {
               // Regular User Edit Page
               <>
                 {/* Basic Info */}
-                <Card className="bg-white border border-border shadow-lg rounded-2xl p-8">
+                <Card className="bg-card border border-border shadow-lg rounded-2xl p-8">
                   <CardContent className="space-y-6">
-                    <h3 className={`text-xl font-bold ${highContrast ? 'text-white' : 'text-foreground'} mb-4`}>Basic Info</h3>
+                    <h3 className="text-xl font-bold text-foreground mb-4">Basic Info</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
                         <label htmlFor="firstName">First Name</label>
@@ -481,9 +481,9 @@ export function ProfileEditPage() {
                   </CardContent>
                 </Card>
                 {/* Professional Details */}
-                <Card className="bg-white border border-border shadow-lg rounded-2xl p-8">
+                <Card className="bg-card border border-border shadow-lg rounded-2xl p-8">
                   <CardContent className="space-y-6">
-                    <h3 className={`text-xl font-bold ${highContrast ? 'text-white' : 'text-foreground'} mb-4`}>Professional Details</h3>
+                    <h3 className="text-xl font-bold text-foreground mb-4">Professional Details</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
                         <label htmlFor="title">Title</label>
@@ -505,17 +505,37 @@ export function ProfileEditPage() {
                   </CardContent>
                 </Card>
                 {/* Contact & Social */}
-                <Card className="bg-white border border-border shadow-lg rounded-2xl p-8">
+                <Card className="bg-card border border-border shadow-lg rounded-2xl p-8">
                   <CardContent className="space-y-6">
-                    <h3 className={`text-xl font-bold ${highContrast ? 'text-white' : 'text-foreground'} mb-4`}>Contact & Social</h3>
+                    <h3 className="text-xl font-bold text-foreground mb-4">Contact & Social</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
                         <label htmlFor="email">Email</label>
-                        <Input id="email" value={profileData.email} onChange={(e) => setProfileData((prev) => ({ ...prev, email: e.target.value }))} disabled={!isEditing} />
+                        <div className="flex items-center gap-2">
+                          <Input id="email" value={profileData.email} onChange={(e) => setProfileData((prev) => ({ ...prev, email: e.target.value }))} disabled={!isEditing} />
+                          <Checkbox
+                            id="showEmail"
+                            checked={profileData.showEmail}
+                            onCheckedChange={(checked) => isEditing && setProfileData((prev) => ({ ...prev, showEmail: !!checked }))}
+                            disabled={!isEditing}
+                            aria-label="Show email on public profile"
+                          />
+                          <label htmlFor="showEmail" className="text-xs text-gray-500 select-none cursor-pointer">Show on public profile</label>
+                        </div>
                       </div>
                       <div className="space-y-2">
                         <label htmlFor="phone">Phone</label>
-                        <Input id="phone" value={profileData.phone} onChange={(e) => setProfileData((prev) => ({ ...prev, phone: e.target.value }))} disabled={!isEditing} />
+                        <div className="flex items-center gap-2">
+                          <Input id="phone" value={profileData.phone} onChange={(e) => setProfileData((prev) => ({ ...prev, phone: e.target.value }))} disabled={!isEditing} />
+                          <Checkbox
+                            id="showPhone"
+                            checked={profileData.showPhone}
+                            onCheckedChange={(checked) => isEditing && setProfileData((prev) => ({ ...prev, showPhone: !!checked }))}
+                            disabled={!isEditing}
+                            aria-label="Show phone on public profile"
+                          />
+                          <label htmlFor="showPhone" className="text-xs text-gray-500 select-none cursor-pointer">Show on public profile</label>
+                        </div>
                       </div>
                       <div className="space-y-2">
                         <label htmlFor="website">Website</label>
@@ -539,17 +559,17 @@ export function ProfileEditPage() {
                   </CardContent>
                 </Card>
                 {/* Accessibility & Preferences */}
-                <Card className="bg-white border border-border shadow-lg rounded-2xl p-8">
+                <Card className="bg-card border border-border shadow-lg rounded-2xl p-8">
                   <CardContent className="space-y-6">
-                    <h3 className={`text-xl font-bold ${highContrast ? 'text-white' : 'text-foreground'} mb-4`}>Accessibility & Preferences</h3>
+                    <h3 className="text-xl font-bold text-foreground mb-4">Accessibility & Preferences</h3>
                     <div className="flex flex-wrap gap-2">
                       {accessibilityOptions.map((option) => (
                         <div
                           key={option.id}
                           className={`flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer transition-colors select-none border
-                            ${highContrast
-                              ? "bg-gray-800 border-gray-600 hover:bg-gray-700"
-                              : "bg-background border-border hover:bg-mustard/5"
+                            ${(profileData.accessibilityNeeds || []).includes(option.id)
+                              ? 'bg-mustard text-white border-mustard'
+                              : 'bg-background border-border hover:bg-accent'
                             }`}
                           onClick={() => isEditing && handleAccessibilityToggle(option.id)}
                         >
@@ -563,14 +583,12 @@ export function ProfileEditPage() {
                             className={
                               `h-5 w-5 ${
                                 (profileData.accessibilityNeeds || []).includes(option.id)
-                                  ? "text-mustard"
-                                  : highContrast
-                                    ? "text-gray-400"
-                                    : "text-gray-500"
+                                  ? "text-white"
+                                  : "text-muted-foreground"
                               }`
                             }
                           />
-                          <span>{option.label}</span>
+                          <span className="text-foreground">{option.label}</span>
                         </div>
                       ))}
                     </div>

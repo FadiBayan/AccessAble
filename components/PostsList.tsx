@@ -188,13 +188,13 @@ export default function PostsList() {
   return (
     <div className="space-y-6">
       {posts.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
+        <div className="text-center py-8 text-muted-foreground">
           No posts yet. Be the first to share something!
         </div>
       ) : (
         <div className="space-y-6">
           {posts.map(post => (
-            <div key={post.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-4 hover:shadow-md hover:scale-105 transition duration-200">
+            <div key={post.id} className="bg-card rounded-lg shadow-sm border border-border p-4 mb-4 hover:shadow-md hover:scale-105 transition duration-200">
               <FeedPost
                 postId={post.id}
                 author={post.author_name}

@@ -70,19 +70,19 @@ export function Header() {
 
   return (
     <>
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+      <header className="bg-background border-b border-border sticky top-0 z-50 shadow-sm">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-16 min-w-0">
             {/* Logo and Search */}
             <div className="flex items-center space-x-4 lg:space-x-6 flex-1 min-w-0">
               <Link href="/dashboard" className="text-xl lg:text-2xl font-bold bg-gradient-to-r from-mustard to-forest-green bg-clip-text text-transparent hover:opacity-80 transition-opacity flex-shrink-0">
-                Access<span className="text-charcoal">Able</span>
+                Access<span className="text-foreground">Able</span>
               </Link>
               <div className="relative group flex-1 max-w-md lg:max-w-lg">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 group-focus-within:text-mustard transition-colors" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 group-focus-within:text-mustard transition-colors" />
                 <Input
                   placeholder="Search for jobs, people, companies..."
-                  className="pl-10 w-full bg-cream border-gray-200 focus:bg-white focus:border-mustard transition-all duration-200"
+                  className="pl-10 w-full bg-muted border-border focus:bg-background focus:border-mustard transition-all duration-200 text-foreground placeholder:text-muted-foreground"
                   aria-label="Search for jobs, people, companies"
                 />
               </div>
@@ -100,15 +100,15 @@ export function Header() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className={`flex flex-col items-center p-2 lg:p-3 h-auto relative transition-all duration-200 hover:bg-cream min-w-0 ${
-                      activeTab === key ? "text-mustard bg-cream" : "text-charcoal"
+                    className={`flex flex-col items-center p-2 lg:p-3 h-auto relative transition-all duration-200 hover:bg-accent min-w-0 ${
+                      activeTab === key ? "text-mustard bg-accent" : "text-foreground"
                     }`}
                     aria-label={`Navigate to ${label}`}
                   >
                     <div className="relative">
                       <Icon className="h-4 w-4 lg:h-5 lg:w-5" />
                       {badge && (
-                        <Badge className="absolute -top-2 -right-2 h-4 w-4 p-0 text-xs bg-mustard hover:bg-mustard text-charcoal">
+                        <Badge className="absolute -top-2 -right-2 h-4 w-4 p-0 text-xs bg-mustard hover:bg-mustard text-foreground">
                           {badge}
                         </Badge>
                       )}
@@ -126,7 +126,7 @@ export function Header() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="flex flex-col items-center p-2 lg:p-3 h-auto hover:bg-cream transition-colors min-w-0"
+                  className="flex flex-col items-center p-2 lg:p-3 h-auto hover:bg-accent transition-colors min-w-0 text-foreground"
                   onClick={() => setShowAccessibilityModal(true)}
                   aria-label="Accessibility settings"
                 >
@@ -136,11 +136,11 @@ export function Header() {
               )}
 
               {/* Profile Menu */}
-              <div className="ml-2 lg:ml-4 pl-2 lg:pl-4 border-l border-gray-200 relative">
+              <div className="ml-2 lg:ml-4 pl-2 lg:pl-4 border-l border-border relative">
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="flex items-center space-x-2 p-2 h-auto hover:bg-cream transition-colors min-w-0"
+                  className="flex items-center space-x-2 p-2 h-auto hover:bg-accent transition-colors min-w-0"
                   onClick={() => setShowProfileMenu(!showProfileMenu)}
                   aria-label="Profile menu"
                 >
@@ -151,19 +151,19 @@ export function Header() {
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col items-start min-w-0">
-                    <span className="text-xs font-medium text-charcoal truncate">Me</span>
+                    <span className="text-xs font-medium text-foreground truncate">Me</span>
                   </div>
-                  <ChevronDown className="h-3 w-3 text-gray-400 flex-shrink-0" aria-hidden="true" />
+                  <ChevronDown className="h-3 w-3 text-muted-foreground flex-shrink-0" aria-hidden="true" />
                 </Button>
 
                 {/* Profile Dropdown Menu */}
                 {showProfileMenu && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50" ref={profileMenuRef}>
+                  <div className="absolute right-0 mt-2 w-48 bg-card rounded-md shadow-lg border border-border z-50" ref={profileMenuRef}>
                     <div className="py-1">
                       <Link href="/profile">
                         <Button
                           variant="ghost"
-                          className="w-full justify-start px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          className="w-full justify-start px-4 py-2 text-sm text-foreground hover:bg-accent"
                           onClick={() => setShowProfileMenu(false)}
                           aria-label="Edit profile"
                         >
@@ -171,10 +171,10 @@ export function Header() {
                           Edit Profile
                         </Button>
                       </Link>
-                      <hr className="my-1" />
+                      <hr className="my-1 border-border" />
                       <Button
                         variant="ghost"
-                        className="w-full justify-start px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                        className="w-full justify-start px-4 py-2 text-sm text-destructive hover:bg-destructive/10"
                         onClick={handleSignOut}
                         aria-label="Sign out of account"
                       >

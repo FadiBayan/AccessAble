@@ -16,7 +16,8 @@ import {
   Ear,
   Hand,
   Brain,
-  X
+  X,
+  Moon
 } from "lucide-react"
 import { useAccessibility } from "./accessibility-provider"
 
@@ -61,9 +62,9 @@ export function AccessibilitySettingsModal({ isOpen, onClose }: AccessibilitySet
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden dialog-content">
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden dialog-content bg-card">
         <DialogHeader className="flex-shrink-0 dialog-header">
-          <DialogTitle className="text-xl font-semibold text-charcoal dialog-title">
+          <DialogTitle className="text-xl font-semibold text-foreground dialog-title">
             Accessibility Settings
           </DialogTitle>
         </DialogHeader>
@@ -71,35 +72,35 @@ export function AccessibilitySettingsModal({ isOpen, onClose }: AccessibilitySet
         <div className="overflow-y-auto max-h-[calc(80vh-80px)] pr-2 space-y-8 p-6">
           {/* Visual Accessibility */}
           <div className="space-y-6">
-            <h3 className="text-lg font-medium text-charcoal flex items-center gap-3">
+            <h3 className="text-lg font-medium text-foreground flex items-center gap-3">
               <Eye className="h-5 w-5 text-mustard" aria-hidden="true" />
               Visual Accessibility
             </h3>
             
             <div className="space-y-6 pl-8">
-              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <div className="flex items-center justify-between p-4 bg-muted rounded-lg border border-border">
                 <div className="flex items-center space-x-3">
-                  <Contrast className="h-5 w-5 text-mustard" aria-hidden="true" />
+                  <Moon className="h-5 w-5 text-mustard" aria-hidden="true" />
                   <div>
-                    <label htmlFor="high-contrast" className="text-sm font-medium">High Contrast</label>
-                    <p className="text-xs text-gray-600 mt-1">Enhanced color contrast for better visibility</p>
+                    <label htmlFor="dark-mode" className="text-sm font-medium text-foreground">Dark Mode</label>
+                    <p className="text-xs text-muted-foreground mt-1">Switch to dark theme for better visibility in low light</p>
                   </div>
                 </div>
                 <Switch
-                  id="high-contrast"
+                  id="dark-mode"
                   checked={settings.highContrast}
                   onCheckedChange={handleHighContrast}
-                  aria-label="Toggle high contrast mode"
+                  aria-label="Toggle dark mode"
                   className="switch"
                 />
               </div>
 
-              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <div className="flex items-center justify-between p-4 bg-muted rounded-lg border border-border">
                 <div className="flex items-center space-x-3">
                   <Type className="h-5 w-5 text-mustard" aria-hidden="true" />
                   <div>
-                    <label htmlFor="large-text" className="text-sm font-medium">Large Text</label>
-                    <p className="text-xs text-gray-600 mt-1">Increase text size for better readability</p>
+                    <label htmlFor="large-text" className="text-sm font-medium text-foreground">Large Text</label>
+                    <p className="text-xs text-muted-foreground mt-1">Increase text size for better readability</p>
                   </div>
                 </div>
                 <Switch
@@ -111,12 +112,12 @@ export function AccessibilitySettingsModal({ isOpen, onClose }: AccessibilitySet
                 />
               </div>
 
-              <div className="space-y-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <div className="space-y-4 p-4 bg-muted rounded-lg border border-border">
                 <div className="flex items-center space-x-3">
                   <ZoomIn className="h-5 w-5 text-mustard" aria-hidden="true" />
                   <div>
-                    <label className="text-sm font-medium">Zoom Level: {settings.zoomLevel}%</label>
-                    <p className="text-xs text-gray-600 mt-1">Adjust the overall zoom level of the interface</p>
+                    <label className="text-sm font-medium text-foreground">Zoom Level: {settings.zoomLevel}%</label>
+                    <p className="text-xs text-muted-foreground mt-1">Adjust the overall zoom level of the interface</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-4">
@@ -129,7 +130,7 @@ export function AccessibilitySettingsModal({ isOpen, onClose }: AccessibilitySet
                   >
                     <ZoomOut className="h-4 w-4" aria-hidden="true" />
                   </Button>
-                  <div className="flex-1 h-3 bg-gray-200 rounded-full slider-track" role="progressbar" aria-valuenow={settings.zoomLevel} aria-valuemin={50} aria-valuemax={200} aria-label="Zoom level slider">
+                  <div className="flex-1 h-3 bg-muted-foreground/20 rounded-full slider-track" role="progressbar" aria-valuenow={settings.zoomLevel} aria-valuemin={50} aria-valuemax={200} aria-label="Zoom level slider">
                     <div 
                       className="h-full bg-mustard rounded-full transition-all slider-range"
                       style={{ width: `${((settings.zoomLevel - 50) / 150) * 100}%` }}
@@ -146,20 +147,18 @@ export function AccessibilitySettingsModal({ isOpen, onClose }: AccessibilitySet
                   </Button>
                 </div>
               </div>
-
-
             </div>
           </div>
 
           {/* Audio Accessibility */}
           <div className="space-y-6">
-            <h3 className="text-lg font-medium text-charcoal flex items-center gap-3">
+            <h3 className="text-lg font-medium text-foreground flex items-center gap-3">
               <Ear className="h-5 w-5 text-mustard" aria-hidden="true" />
               Audio Accessibility
             </h3>
             
             <div className="pl-8">
-              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <div className="flex items-center justify-between p-4 bg-muted rounded-lg border border-border">
                 <div className="flex items-center space-x-3">
                   {settings.audioEnabled ? (
                     <Volume2 className="h-5 w-5 text-mustard" aria-hidden="true" />
@@ -167,8 +166,8 @@ export function AccessibilitySettingsModal({ isOpen, onClose }: AccessibilitySet
                     <VolumeX className="h-5 w-5 text-mustard" aria-hidden="true" />
                   )}
                   <div>
-                    <label htmlFor="audio" className="text-sm font-medium">Audio</label>
-                    <p className="text-xs text-gray-600 mt-1">Enable audio feedback and notifications</p>
+                    <label htmlFor="audio" className="text-sm font-medium text-foreground">Audio</label>
+                    <p className="text-xs text-muted-foreground mt-1">Enable audio feedback and notifications</p>
                   </div>
                 </div>
                 <Switch
@@ -184,21 +183,21 @@ export function AccessibilitySettingsModal({ isOpen, onClose }: AccessibilitySet
 
           {/* Disability Profile */}
           <div className="space-y-6">
-            <h3 className="text-lg font-medium text-charcoal flex items-center gap-3">
+            <h3 className="text-lg font-medium text-foreground flex items-center gap-3">
               <Brain className="h-5 w-5 text-mustard" aria-hidden="true" />
               Disability Profile
             </h3>
-            <p className="text-sm text-gray-600 pl-8">
+            <p className="text-sm text-muted-foreground pl-8">
               Help us personalize your experience by sharing your accessibility needs.
             </p>
             
             <div className="space-y-4 pl-8">
-              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <div className="flex items-center justify-between p-4 bg-muted rounded-lg border border-border">
                 <div className="flex items-center space-x-3">
                   <Eye className="h-5 w-5 text-mustard" aria-hidden="true" />
                   <div>
-                    <label htmlFor="visual-impairment" className="text-sm font-medium">Visual Impairment</label>
-                    <p className="text-xs text-gray-600 mt-1">Optimize for visual accessibility needs</p>
+                    <label htmlFor="visual-impairment" className="text-sm font-medium text-foreground">Visual Impairment</label>
+                    <p className="text-xs text-muted-foreground mt-1">Optimize for visual accessibility needs</p>
                   </div>
                 </div>
                 <Switch
@@ -210,12 +209,12 @@ export function AccessibilitySettingsModal({ isOpen, onClose }: AccessibilitySet
                 />
               </div>
 
-              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <div className="flex items-center justify-between p-4 bg-muted rounded-lg border border-border">
                 <div className="flex items-center space-x-3">
                   <Ear className="h-5 w-5 text-mustard" aria-hidden="true" />
                   <div>
-                    <label htmlFor="hearing-impairment" className="text-sm font-medium">Hearing Impairment</label>
-                    <p className="text-xs text-gray-600 mt-1">Optimize for hearing accessibility needs</p>
+                    <label htmlFor="hearing-impairment" className="text-sm font-medium text-foreground">Hearing Impairment</label>
+                    <p className="text-xs text-muted-foreground mt-1">Optimize for hearing accessibility needs</p>
                   </div>
                 </div>
                 <Switch
@@ -227,12 +226,12 @@ export function AccessibilitySettingsModal({ isOpen, onClose }: AccessibilitySet
                 />
               </div>
 
-              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <div className="flex items-center justify-between p-4 bg-muted rounded-lg border border-border">
                 <div className="flex items-center space-x-3">
                   <Hand className="h-5 w-5 text-mustard" aria-hidden="true" />
                   <div>
-                    <label htmlFor="motor-impairment" className="text-sm font-medium">Motor Impairment</label>
-                    <p className="text-xs text-gray-600 mt-1">Optimize for motor accessibility needs</p>
+                    <label htmlFor="motor-impairment" className="text-sm font-medium text-foreground">Motor Impairment</label>
+                    <p className="text-xs text-muted-foreground mt-1">Optimize for motor accessibility needs</p>
                   </div>
                 </div>
                 <Switch
@@ -244,12 +243,12 @@ export function AccessibilitySettingsModal({ isOpen, onClose }: AccessibilitySet
                 />
               </div>
 
-              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <div className="flex items-center justify-between p-4 bg-muted rounded-lg border border-border">
                 <div className="flex items-center space-x-3">
                   <Brain className="h-5 w-5 text-mustard" aria-hidden="true" />
                   <div>
-                    <label htmlFor="cognitive-impairment" className="text-sm font-medium">Cognitive Impairment</label>
-                    <p className="text-xs text-gray-600 mt-1">Optimize for cognitive accessibility needs</p>
+                    <label htmlFor="cognitive-impairment" className="text-sm font-medium text-foreground">Cognitive Impairment</label>
+                    <p className="text-xs text-muted-foreground mt-1">Optimize for cognitive accessibility needs</p>
                   </div>
                 </div>
                 <Switch

@@ -185,7 +185,11 @@ function useToast() {
 }
 
 const ToastProvider = ({ children }: { children: React.ReactNode }) => {
-  return <>{children}</>
-}
+  return (
+    <React.Fragment>
+      {children}
+    </React.Fragment>
+  );
+};
 
-export { useToast, toast, ToastProvider }
+export { useToast, toast, ToastProvider };

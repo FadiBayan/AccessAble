@@ -259,10 +259,10 @@ export default function JobsPage() {
 
   if (!mounted) {
     return (
-      <div className="min-h-screen bg-cream">
+      <div className="min-h-screen bg-background">
         <Header />
         <main id="main-content" className="max-w-6xl mx-auto px-4 py-8">
-          <div className="text-center py-8">Loading...</div>
+          <div className="text-center py-8 text-muted-foreground">Loading...</div>
         </main>
       </div>
     )
@@ -270,24 +270,24 @@ export default function JobsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-cream">
+      <div className="min-h-screen bg-background">
         <Header />
         <main id="main-content" className="max-w-6xl mx-auto px-4 py-8">
-          <div className="text-center py-8">Loading jobs...</div>
+          <div className="text-center py-8 text-muted-foreground">Loading jobs...</div>
         </main>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-cream">
+    <div className="min-h-screen bg-background">
       <Header />
       <main id="main-content" className="container-responsive max-w-6xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-charcoal mb-2">Jobs</h1>
-            <p className="text-gray-600">Find accessible job opportunities</p>
+            <h1 className="text-3xl font-bold text-foreground mb-2">Jobs</h1>
+            <p className="text-muted-foreground">Find accessible job opportunities</p>
           </div>
           <Link href="/jobs/post" className="mt-4 sm:mt-0">
             <Button className="bg-mustard hover:bg-forest-green text-white">
@@ -300,11 +300,11 @@ export default function JobsPage() {
         {/* Job Posts */}
         <div className="space-y-6">
           {jobPosts.length === 0 ? (
-            <Card>
+            <Card className="bg-card">
               <CardContent className="text-center py-12">
-                <Briefcase className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-gray-600 mb-2">No jobs posted yet</h3>
-                <p className="text-gray-500 mb-4">Be the first to share an accessible job opportunity!</p>
+                <Briefcase className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-foreground mb-2">No jobs posted yet</h3>
+                <p className="text-muted-foreground mb-4">Be the first to share an accessible job opportunity!</p>
                 <Link href="/jobs/post">
                   <Button className="bg-mustard hover:bg-forest-green text-white">
                     <Plus className="h-4 w-4 mr-2" />
@@ -315,7 +315,7 @@ export default function JobsPage() {
             </Card>
           ) : (
             jobPosts.map((job) => (
-              <Card key={job.id} className="hover:shadow-md transition-shadow">
+              <Card key={job.id} className="hover:shadow-md transition-shadow bg-card">
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="flex items-start space-x-4 flex-1 min-w-0">
@@ -327,12 +327,12 @@ export default function JobsPage() {
                       </Avatar>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center space-x-2 mb-1">
-                          <h3 className="text-lg font-semibold text-charcoal truncate">{job.title}</h3>
+                          <h3 className="text-lg font-semibold text-foreground truncate">{job.title}</h3>
                           <Badge className="bg-green-100 text-green-800">Job</Badge>
                         </div>
-                        <p className="text-sm text-gray-600 mb-2">{job.author_name} • {formatTimeAgo(job.created_at)}</p>
+                        <p className="text-sm text-muted-foreground mb-2">{job.author_name} • {formatTimeAgo(job.created_at)}</p>
                         {job.job_metadata?.company_name && (
-                          <p className="text-sm text-gray-600 flex items-center">
+                          <p className="text-sm text-muted-foreground flex items-center">
                             <Building className="h-3 w-3 mr-1" />
                             {job.job_metadata.company_name}
                           </p>
@@ -355,7 +355,7 @@ export default function JobsPage() {
                           size="sm"
                           onClick={() => setShowDeleteConfirm(job.id)}
                           aria-label="Delete job"
-                          className="text-red-500 hover:text-red-700"
+                          className="text-destructive hover:text-destructive/80"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -373,14 +373,14 @@ export default function JobsPage() {
                              value={editTitle}
                              onChange={(e) => setEditTitle(e.target.value)}
                              placeholder="Job title"
-                             className="w-full"
+                             className="w-full bg-background border border-input text-foreground"
                              disabled={editJobLoading}
                            />
                            <Textarea
                              value={editContent}
                              onChange={(e) => setEditContent(e.target.value)}
                              placeholder="Job description"
-                             className="w-full"
+                             className="w-full bg-background border border-input text-foreground"
                              rows={4}
                              disabled={editJobLoading}
                            />
@@ -388,18 +388,18 @@ export default function JobsPage() {
 
                          {/* Company Information */}
                          <div className="space-y-3">
-                           <h4 className="font-medium text-gray-700">Company Information</h4>
+                           <h4 className="font-medium text-foreground">Company Information</h4>
                            <Input
                              value={editCompanyName}
                              onChange={(e) => setEditCompanyName(e.target.value)}
                              placeholder="Company name"
-                             className="w-full"
+                             className="w-full bg-background border border-input text-foreground"
                            />
                            <Input
                              value={editLocation}
                              onChange={(e) => setEditLocation(e.target.value)}
                              placeholder="Location"
-                             className="w-full"
+                             className="w-full bg-background border border-input text-foreground"
                            />
                            <div className="flex items-center space-x-2">
                              <Switch
@@ -407,7 +407,7 @@ export default function JobsPage() {
                                checked={editIsRemote}
                                onCheckedChange={setEditIsRemote}
                              />
-                             <label htmlFor="remote-work" className="text-sm font-medium">
+                             <label htmlFor="remote-work" className="text-sm font-medium text-foreground">
                                Remote work available
                              </label>
                            </div>
@@ -415,7 +415,7 @@ export default function JobsPage() {
 
                          {/* Job Details */}
                          <div className="space-y-3">
-                           <h4 className="font-medium text-gray-700">Job Details</h4>
+                           <h4 className="font-medium text-foreground">Job Details</h4>
                            <Select value={editJobType} onValueChange={setEditJobType}>
                              <SelectTrigger>
                                <SelectValue placeholder="Select job type" />
@@ -450,7 +450,7 @@ export default function JobsPage() {
 
                          {/* Accessibility Features */}
                          <div className="space-y-3">
-                           <h4 className="font-medium text-gray-700">Accessibility Features</h4>
+                           <h4 className="font-medium text-foreground">Accessibility Features</h4>
                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                              <div className="flex items-center space-x-2">
                                <Switch
@@ -461,7 +461,7 @@ export default function JobsPage() {
                                    screenReaderSupport: checked
                                  }))}
                                />
-                               <label htmlFor="screen-reader" className="text-sm">
+                               <label htmlFor="screen-reader" className="text-sm text-foreground">
                                  Screen Reader Support
                                </label>
                              </div>
@@ -474,7 +474,7 @@ export default function JobsPage() {
                                    signLanguageSupport: checked
                                  }))}
                                />
-                               <label htmlFor="sign-language" className="text-sm">
+                               <label htmlFor="sign-language" className="text-sm text-foreground">
                                  Sign Language Support
                                </label>
                              </div>
@@ -487,7 +487,7 @@ export default function JobsPage() {
                                    remoteWork: checked
                                  }))}
                                />
-                               <label htmlFor="remote-work-feature" className="text-sm">
+                               <label htmlFor="remote-work-feature" className="text-sm text-foreground">
                                  Remote Work
                                </label>
                              </div>
@@ -500,7 +500,7 @@ export default function JobsPage() {
                                    flexibleHours: checked
                                  }))}
                                />
-                               <label htmlFor="flexible-hours" className="text-sm">
+                               <label htmlFor="flexible-hours" className="text-sm text-foreground">
                                  Flexible Hours
                                </label>
                              </div>
@@ -513,7 +513,7 @@ export default function JobsPage() {
                                    assistiveTechnology: checked
                                  }))}
                                />
-                               <label htmlFor="assistive-tech" className="text-sm">
+                               <label htmlFor="assistive-tech" className="text-sm text-foreground">
                                  Assistive Technology
                                </label>
                              </div>
@@ -526,7 +526,7 @@ export default function JobsPage() {
                                    accessibleOffice: checked
                                  }))}
                                />
-                               <label htmlFor="accessible-office" className="text-sm">
+                               <label htmlFor="accessible-office" className="text-sm text-foreground">
                                  Accessible Office
                                </label>
                              </div>
@@ -544,31 +544,31 @@ export default function JobsPage() {
                          </div>
                        </div>
                      ) : (
-                       <p className="text-gray-700 whitespace-pre-wrap">{job.content}</p>
+                       <p className="text-foreground whitespace-pre-wrap">{job.content}</p>
                      )}
                     
                     {/* Job Details */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
                       {job.job_metadata?.location && !job.job_metadata?.is_remote && (
-                        <div className="flex items-center text-gray-600">
+                        <div className="flex items-center text-muted-foreground">
                           <MapPin className="h-4 w-4 mr-2" />
                           {job.job_metadata.location}
                         </div>
                       )}
                       {job.job_metadata?.is_remote && (
-                        <div className="flex items-center text-gray-600">
+                        <div className="flex items-center text-muted-foreground">
                           <Globe className="h-4 w-4 mr-2" />
                           Remote
                         </div>
                       )}
                       {job.job_metadata?.job_type && (
-                        <div className="flex items-center text-gray-600">
+                        <div className="flex items-center text-muted-foreground">
                           <Briefcase className="h-4 w-4 mr-2" />
                           {job.job_metadata.job_type}
                         </div>
                       )}
                       {job.job_metadata?.salary_range && (
-                        <div className="flex items-center text-gray-600">
+                        <div className="flex items-center text-muted-foreground">
                           <DollarSign className="h-4 w-4 mr-2" />
                           {job.job_metadata.salary_range}
                         </div>
@@ -578,7 +578,7 @@ export default function JobsPage() {
                     {/* Accessibility Features */}
                     {job.job_metadata?.accessibility_features && (
                       <div className="mt-4">
-                        <h4 className="text-sm font-medium text-gray-700 mb-2">Accessibility Features:</h4>
+                        <h4 className="text-sm font-medium text-foreground mb-2">Accessibility Features:</h4>
                         <div className="flex flex-wrap gap-2">
                           {Object.entries(job.job_metadata.accessibility_features).map(([feature, enabled]) => {
                             if (enabled) {
@@ -620,8 +620,8 @@ export default function JobsPage() {
                 
                 {/* Delete Confirmation */}
                 {showDeleteConfirm === job.id && (
-                  <div className="bg-red-50 border border-red-200 p-4 rounded-lg m-4">
-                    <p className="text-red-800 mb-3">Are you sure you want to delete this job post?</p>
+                  <div className="bg-destructive/10 border border-destructive/20 p-4 rounded-lg m-4">
+                    <p className="text-destructive mb-3">Are you sure you want to delete this job post?</p>
                     <div className="flex space-x-2">
                       <Button 
                         variant="destructive" 
