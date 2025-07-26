@@ -168,7 +168,7 @@ export function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
+    <div className="min-h-screen flex items-center justify-center bg-background dark:bg-black">
       {/* Accessibility Toolbar */}
       <div className="fixed top-4 right-4 z-50 flex space-x-2">
         <Button
@@ -176,7 +176,7 @@ export function AuthPage() {
           size="sm"
           onClick={() => updateSettings({ highContrast: !highContrast })}
           aria-label="Toggle dark mode"
-          className="bg-card border-border text-foreground hover:bg-accent"
+          className="bg-card border border-border text-foreground hover:bg-accent dark:bg-card dark:border-border dark:text-foreground dark:shadow-md"
         >
           <Moon className="h-4 w-4" />
         </Button>
@@ -185,7 +185,7 @@ export function AuthPage() {
           size="sm"
           onClick={() => setLargeText(!largeText)}
           aria-label="Toggle large text"
-          className="bg-card border-border text-foreground hover:bg-accent"
+          className="bg-card border border-border text-foreground hover:bg-accent dark:bg-card dark:border-border dark:text-foreground dark:shadow-md"
         >
           <Type className="h-4 w-4" />
         </Button>
@@ -194,7 +194,7 @@ export function AuthPage() {
           size="sm"
           onClick={() => setAudioEnabled(!audioEnabled)}
           aria-label="Toggle audio assistance"
-          className="bg-card border-border text-foreground hover:bg-accent"
+          className="bg-card border border-border text-foreground hover:bg-accent dark:bg-card dark:border-border dark:text-foreground dark:shadow-md"
         >
           {audioEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
         </Button>

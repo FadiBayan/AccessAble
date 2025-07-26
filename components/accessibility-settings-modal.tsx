@@ -126,7 +126,7 @@ export function AccessibilitySettingsModal({ isOpen, onClose }: AccessibilitySet
                     variant="outline"
                     onClick={() => handleZoom(Math.max(settings.zoomLevel - 10, 50))}
                     aria-label="Decrease zoom level by 10%"
-                    className="btn"
+                    className="btn bg-card border border-border text-foreground hover:bg-accent dark:bg-card dark:border-border dark:text-foreground dark:shadow-md"
                   >
                     <ZoomOut className="h-4 w-4" aria-hidden="true" />
                   </Button>
@@ -141,7 +141,7 @@ export function AccessibilitySettingsModal({ isOpen, onClose }: AccessibilitySet
                     variant="outline"
                     onClick={() => handleZoom(Math.min(settings.zoomLevel + 10, 200))}
                     aria-label="Increase zoom level by 10%"
-                    className="btn"
+                    className="btn bg-card border border-border text-foreground hover:bg-accent dark:bg-card dark:border-border dark:text-foreground dark:shadow-md"
                   >
                     <ZoomIn className="h-4 w-4" aria-hidden="true" />
                   </Button>
