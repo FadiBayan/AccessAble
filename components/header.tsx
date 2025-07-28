@@ -21,6 +21,16 @@ export function Header() {
   const profileMenuRef = useRef<HTMLDivElement>(null)
   const { settings } = useAccessibility()
 
+  // --- SEARCH STATE ---
+  const [searchValue, setSearchValue] = useState("");
+  const [searchResults, setSearchResults] = useState({ people: [], jobs: [], companies: [], posts: [] });
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const searchDropdownRef = useRef<HTMLDivElement>(null);
+  const searchTimeout = useRef<NodeJS.Timeout | null>(null);
+
   useEffect(() => {
     async function fetchUserProfile() {
       const supabase = getSupabaseClient();
@@ -36,6 +46,93 @@ export function Header() {
     }
     fetchUserProfile();
   }, []);
+
+  // --- SEARCH HANDLER ---
+  useEffect(() => {
+    if (!searchValue.trim()) {
+      setSearchResults({ people: [], jobs: [], companies: [], posts: [] });
+      setShowDropdown(false);
+      setSearchLoading(false);
+      setSearchError(null);
+      return;
+    }
+    setSearchLoading(true);
+    setSearchError(null);
+    setShowDropdown(true);
+    if (searchTimeout.current) clearTimeout(searchTimeout.current);
+    searchTimeout.current = setTimeout(async () => {
+      try {
+        const supabase = getSupabaseClient();
+        // People (profiles, not NGOs)
+        const { data: people, error: peopleError } = await supabase
+          .from('profiles')
+          .select('id, first_name, last_name, job_title, avatar_url, account_type')
+          .or(`first_name.ilike.%${searchValue}%,last_name.ilike.%${searchValue}%,job_title.ilike.%${searchValue}%`)
+          .neq('account_type', 'NGO')
+          .limit(3);
+        // Companies (NGOs/Organizations)
+        const { data: companies, error: companiesError } = await supabase
+          .from('profiles')
+          .select('id, organization_name, avatar_url, account_type')
+          .or(`organization_name.ilike.%${searchValue}%`)
+          .in('account_type', ['NGO', 'NGO / Organization'])
+          .limit(3);
+        // Jobs (posts with is_job_post)
+        const { data: jobs, error: jobsError } = await supabase
+          .from('posts')
+          .select('id, title, job_metadata, created_at')
+          .eq('is_job_post', true)
+          .or(`title.ilike.%${searchValue}%,content.ilike.%${searchValue}%,job_metadata->>company_name.ilike.%${searchValue}%`)
+          .order('created_at', { ascending: false })
+          .limit(3);
+        // Posts (not jobs)
+        const { data: posts, error: postsError } = await supabase
+          .from('posts')
+          .select('id, title, content, created_at')
+          .eq('is_job_post', false)
+          .or(`title.ilike.%${searchValue}%,content.ilike.%${searchValue}%`)
+          .order('created_at', { ascending: false })
+          .limit(3);
+        if (peopleError || companiesError || jobsError || postsError) {
+          setSearchError("Error searching. Try again.");
+        } else {
+          setSearchResults({
+            people: people || [],
+            jobs: jobs || [],
+            companies: companies || [],
+            posts: posts || [],
+          });
+        }
+      } catch (err) {
+        setSearchError("Error searching. Try again.");
+      } finally {
+        setSearchLoading(false);
+      }
+    }, 350); // debounce
+    // eslint-disable-next-line
+  }, [searchValue]);
+
+  // --- CLOSE DROPDOWN ON OUTSIDE CLICK ---
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        searchDropdownRef.current &&
+        !searchDropdownRef.current.contains(event.target as Node) &&
+        searchInputRef.current &&
+        !searchInputRef.current.contains(event.target as Node)
+      ) {
+        setShowDropdown(false);
+      }
+    }
+    if (showDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showDropdown]);
 
   // Close profile menu when clicking outside
   useEffect(() => {
@@ -81,10 +178,130 @@ export function Header() {
               <div className="relative group flex-1 max-w-md lg:max-w-lg">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 group-focus-within:text-mustard transition-colors" />
                 <Input
+                  ref={searchInputRef}
+                  value={searchValue}
+                  onChange={e => setSearchValue(e.target.value)}
+                  onFocus={() => searchValue && setShowDropdown(true)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') {
+                      setShowDropdown(false);
+                      router.push(`/search?q=${encodeURIComponent(searchValue)}`);
+                    }
+                  }}
                   placeholder="Search for jobs, people, companies..."
                   className="pl-10 w-full bg-muted border-border focus:bg-background focus:border-mustard transition-all duration-200 text-foreground placeholder:text-muted-foreground"
                   aria-label="Search for jobs, people, companies"
+                  autoComplete="off"
                 />
+                {/* DROPDOWN */}
+                {showDropdown && searchValue && (
+                  <div ref={searchDropdownRef} className="absolute left-0 right-0 mt-2 bg-card border border-border rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
+                    {searchLoading ? (
+                      <div className="p-4 text-center text-muted-foreground text-sm">Searching...</div>
+                    ) : searchError ? (
+                      <div className="p-4 text-center text-destructive text-sm">{searchError}</div>
+                    ) : (
+                      <>
+                        {['people', 'companies', 'jobs', 'posts'].map(type => (
+                          searchResults[type].length > 0 && (
+                            <div key={type} className="border-b last:border-b-0 border-border">
+                              <div className="px-4 pt-3 pb-1 text-xs font-semibold text-muted-foreground uppercase">{type.charAt(0).toUpperCase() + type.slice(1)}</div>
+                              {searchResults[type].map((item: any) => {
+                                if (type === 'people') {
+                                  return (
+                                    <Link key={item.id} href={`/profile/${item.id}`} onClick={() => setShowDropdown(false)} className="block px-4 py-2 hover:bg-accent transition-colors">
+                                      <div className="flex items-center space-x-3">
+                                        <Avatar className="h-8 w-8 flex-shrink-0">
+                                          <AvatarImage src={item.avatar_url} alt={`${item.first_name} ${item.last_name}`} />
+                                          <AvatarFallback className="bg-gradient-to-br from-mustard to-forest-green text-white text-xs">
+                                            {item.first_name?.[0] || ''}{item.last_name?.[0] || ''}
+                                          </AvatarFallback>
+                                        </Avatar>
+                                        <div className="flex-1 min-w-0">
+                                          <span className="font-medium text-foreground block truncate">{item.first_name} {item.last_name}</span>
+                                          {item.job_title && <span className="text-xs text-muted-foreground block truncate">{item.job_title}</span>}
+                                        </div>
+                                      </div>
+                                    </Link>
+                                  );
+                                }
+                                if (type === 'companies') {
+                                  return (
+                                    <Link key={item.id} href={`/profile/${item.id}`} onClick={() => setShowDropdown(false)} className="block px-4 py-2 hover:bg-accent transition-colors">
+                                      <div className="flex items-center space-x-3">
+                                        <Avatar className="h-8 w-8 flex-shrink-0">
+                                          <AvatarImage src={item.avatar_url} alt={item.organization_name} />
+                                          <AvatarFallback className="bg-gradient-to-br from-mustard to-forest-green text-white text-xs">
+                                            {item.organization_name?.[0] || 'O'}
+                                          </AvatarFallback>
+                                        </Avatar>
+                                        <div className="flex-1 min-w-0">
+                                          <span className="font-medium text-foreground block truncate">{item.organization_name}</span>
+                                          <span className="text-xs text-muted-foreground block">Company</span>
+                                        </div>
+                                      </div>
+                                    </Link>
+                                  );
+                                }
+                                if (type === 'jobs') {
+                                  return (
+                                    <Link key={item.id} href={`/jobs`} onClick={() => setShowDropdown(false)} className="block px-4 py-2 hover:bg-accent transition-colors">
+                                      <div className="flex items-center space-x-3">
+                                        <div className="h-8 w-8 flex-shrink-0 bg-mustard rounded-full flex items-center justify-center">
+                                          <svg className="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H8a2 2 0 01-2-2V8a2 2 0 012-2V6" />
+                                          </svg>
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                          <span className="font-medium text-foreground block truncate">{item.title}</span>
+                                          {item.job_metadata?.company_name && <span className="text-xs text-muted-foreground block truncate">{item.job_metadata.company_name}</span>}
+                                        </div>
+                                      </div>
+                                    </Link>
+                                  );
+                                }
+                                if (type === 'posts') {
+                                  return (
+                                    <Link key={item.id} href={`/posts/${item.id}`} onClick={() => setShowDropdown(false)} className="block px-4 py-2 hover:bg-accent transition-colors">
+                                      <div className="flex items-center space-x-3">
+                                        <div className="h-8 w-8 flex-shrink-0 bg-forest-green rounded-full flex items-center justify-center">
+                                          <svg className="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                          </svg>
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                          <span className="font-medium text-foreground block truncate">{item.title || item.content?.slice(0, 30) + '...'}</span>
+                                          <span className="text-xs text-muted-foreground block">Post</span>
+                                        </div>
+                                      </div>
+                                    </Link>
+                                  );
+                                }
+                                return null;
+                              })}
+                            </div>
+                          )
+                        ))}
+                        {/* If no results at all */}
+                        {Object.values(searchResults).every(arr => arr.length === 0) && (
+                          <div className="p-4 text-center text-muted-foreground text-sm">No results found.</div>
+                        )}
+                        {/* See all results */}
+                        <div className="border-t border-border">
+                          <button
+                            className="w-full text-mustard font-semibold py-2 hover:bg-accent transition-colors text-sm"
+                            onClick={() => {
+                              setShowDropdown(false);
+                              router.push(`/search?q=${encodeURIComponent(searchValue)}`);
+                            }}
+                          >
+                            See all results for "{searchValue}"
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 

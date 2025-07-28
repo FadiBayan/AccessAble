@@ -2,6 +2,9 @@ import { notFound } from 'next/navigation';
 import { getSupabaseClient } from '@/lib/supabaseClient';
 import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
 import ProfilePostsClient from './ProfilePostsClient';
 
 interface ProfilePageProps {
@@ -39,6 +42,16 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     return (
       <div className="min-h-screen bg-background">
         <div className="max-w-3xl mx-auto py-10 px-4 md:px-0">
+          {/* Back Button */}
+          <div className="mb-6">
+            <Link href="/dashboard">
+              <Button variant="ghost" className="flex items-center space-x-2 text-foreground hover:bg-accent">
+                <ArrowLeft className="h-4 w-4" />
+                <span>Back to Feed</span>
+              </Button>
+            </Link>
+          </div>
+          
           <Card className="p-0 mb-8 overflow-hidden shadow-lg rounded-2xl border-0 bg-card">
             {/* Banner or fallback */}
             <div className="h-32 bg-gradient-to-r from-mustard to-forest-green relative">
@@ -100,6 +113,16 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-2xl mx-auto py-8 px-4">
+        {/* Back Button */}
+        <div className="mb-6">
+          <Link href="/dashboard">
+            <Button variant="ghost" className="flex items-center space-x-2 text-foreground hover:bg-accent">
+              <ArrowLeft className="h-4 w-4" />
+              <span>Back to Feed</span>
+            </Button>
+          </Link>
+        </div>
+        
         {/* Profile Header */}
         <Card className="p-0 mb-8 overflow-hidden shadow-lg rounded-2xl border-0 bg-card">
           {/* Subtle Banner */}
