@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
-import ProfilePostsClient from './ProfilePostsClient';
+import ProfileClient from './ProfileClient';
 
 interface ProfilePageProps {
   params: { id: string };
@@ -101,8 +101,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
             </div>
           </Card>
           <div className="mt-8">
-            <h2 className="text-xl font-semibold mb-4 text-foreground">Campaigns & Posts</h2>
-            <ProfilePostsClient posts={posts} profile={profile} ngo={true} />
+            <ProfileClient profile={profile} posts={posts} ngo={true} />
           </div>
         </div>
       </div>
@@ -173,8 +172,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
         </Card>
         {/* Posts remain unchanged */}
         <div className="mt-8">
-          <h2 className="text-xl font-semibold mb-4 text-foreground">Posts</h2>
-          <ProfilePostsClient posts={posts} profile={profile} ngo={false} />
+          <ProfileClient profile={profile} posts={posts} ngo={false} />
         </div>
       </div>
     </div>

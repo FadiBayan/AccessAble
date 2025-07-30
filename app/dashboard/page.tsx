@@ -7,12 +7,14 @@ import { PostCreation } from "../../components/post-creation"
 import { NGOProfileSidebar } from "../../components/NGOProfileSidebar"
 import { JobSidebar } from "../../components/job-sidebar"
 import PostsList from '@/components/PostsList';
+import { FollowingPosts } from '@/components/FollowingPosts';
 import { Loader2 } from "lucide-react";
 
 export default function DashboardPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -22,6 +24,7 @@ export default function DashboardPage() {
       if (!user) {
         router.push('/auth');
       } else {
+        setCurrentUserId(user.id);
         setLoading(false);
       }
     }
@@ -64,7 +67,7 @@ export default function DashboardPage() {
           {/* Main Feed */}
           <div className="lg:col-span-2 space-y-6">
             <PostCreation />
-            <PostsList />
+            <FollowingPosts currentUserId={currentUserId} />
           </div>
 
           {/* Right Sidebar */}

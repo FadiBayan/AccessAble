@@ -44,12 +44,12 @@ export function NGOProfileSidebar({ showEditButton = true, isEditing = false }: 
       setProfile(profileData);
       setAvatarPreview(null); // Reset preview on profile fetch
       const { count: followersCount } = await supabase
-        .from("follows")
+        .from("user_follows")
         .select("*", { count: "exact", head: true })
         .eq("following_id", user.id);
       setFollowers(followersCount || 0);
       const { count: followingCount } = await supabase
-        .from("follows")
+        .from("user_follows")
         .select("*", { count: "exact", head: true })
         .eq("follower_id", user.id);
       setFollowing(followingCount || 0);

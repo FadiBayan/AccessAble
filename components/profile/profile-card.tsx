@@ -18,7 +18,7 @@ export function ProfileCard({ avatarUrl, name, subtitle, isEditing = false, onAv
     // Compact horizontal layout for post feed
     return (
       <div
-        className="flex items-center gap-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-mustard rounded-full transition-shadow hover:shadow-md"
+        className="flex items-center gap-2 cursor-pointer focus:outline-none rounded-full transition-shadow"
         tabIndex={0}
         role="link"
         aria-label={`View ${name}'s profile`}
@@ -36,9 +36,9 @@ export function ProfileCard({ avatarUrl, name, subtitle, isEditing = false, onAv
   }
   // Default large card for profile pages
   return (
-    <Card className="p-5 space-y-2 rounded-xl shadow-md bg-card hover:shadow-lg transition w-full flex flex-col items-center">
+    <Card className="p-5 space-y-2 rounded-xl shadow-md bg-card transition w-full flex flex-col items-center">
       <div className="flex flex-col items-center gap-3">
-        <Avatar className="w-24 h-24 rounded-full ring-2 ring-mustard hover:ring-4 transition-all cursor-pointer mb-2">
+        <Avatar className="w-24 h-24 rounded-full ring-2 ring-mustard transition-all cursor-pointer mb-2">
           <AvatarImage src={avatarUrl || '/placeholder-user.jpg'} alt={name} />
           <AvatarFallback>{name[0]}</AvatarFallback>
         </Avatar>

@@ -546,7 +546,7 @@ export function FeedPost({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link href={`/profile/${postUserId}`} tabIndex={0} aria-label={`View ${author}'s profile`} className="focus:outline-none focus:ring-2 focus:ring-mustard rounded-full">
+          <Link href={`/profile/${postUserId}`} tabIndex={0} aria-label={`View ${author}'s profile`} className="focus:outline-none">
             <ProfileCard
               avatarUrl={avatar}
               name={author}
