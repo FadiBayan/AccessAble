@@ -64,6 +64,7 @@ export default function JobsPage() {
   const [editJobLoading, setEditJobLoading] = useState(false);
   const [editJobError, setEditJobError] = useState<string | null>(null);
 
+  
   useEffect(() => {
     setMounted(true);
     fetchCurrentUser()
