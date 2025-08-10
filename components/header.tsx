@@ -4,7 +4,6 @@ import { Search, Bell, Users, Briefcase, Home, ChevronDown, User, Settings, LogO
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
 import { useState, useEffect, useRef } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { getSupabaseClient } from "@/lib/supabaseClient";
@@ -14,6 +13,8 @@ import { AccessibilitySettingsModal } from "./accessibility-settings-modal"
 
 export function Header() {
   const [userProfile, setUserProfile] = useState<any>(null)
+  const [unreadCount, setUnreadCount] = useState<number>(0)
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
   const [showProfileMenu, setShowProfileMenu] = useState(false)
   const [showAccessibilityModal, setShowAccessibilityModal] = useState(false)
   const router = useRouter()
@@ -23,7 +24,8 @@ export function Header() {
 
   // --- SEARCH STATE ---
   const [searchValue, setSearchValue] = useState("");
-  const [searchResults, setSearchResults] = useState({ people: [], jobs: [], companies: [], posts: [] });
+  type SearchResults = { people: any[]; jobs: any[]; companies: any[]; posts: any[] }
+  const [searchResults, setSearchResults] = useState<SearchResults>({ people: [], jobs: [], companies: [], posts: [] });
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -35,17 +37,50 @@ export function Header() {
     async function fetchUserProfile() {
       const supabase = getSupabaseClient();
       const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
-        setUserProfile(profile);
-      }
+      if (!user) return;
+      setCurrentUserId(user.id);
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+      setUserProfile(profile);
+
+      const { count } = await supabase
+        .from('notifications')
+        .select('*', { count: 'exact', head: true })
+        .is('read_at', null)
+        .eq('recipient_id', user.id);
+      setUnreadCount(count || 0);
     }
     fetchUserProfile();
   }, []);
+
+  // realtime badge updates for notifications
+  useEffect(() => {
+    const supabase = getSupabaseClient();
+    if (!currentUserId) return;
+    const channel = supabase
+      .channel(`notifications-badge:${currentUserId}`)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `recipient_id=eq.${currentUserId}` }, async () => {
+        const { count } = await supabase
+          .from('notifications')
+          .select('*', { count: 'exact', head: true })
+          .is('read_at', null)
+          .eq('recipient_id', currentUserId);
+        setUnreadCount(count || 0);
+      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'notifications', filter: `recipient_id=eq.${currentUserId}` }, async () => {
+        const { count } = await supabase
+          .from('notifications')
+          .select('*', { count: 'exact', head: true })
+          .is('read_at', null)
+          .eq('recipient_id', currentUserId);
+        setUnreadCount(count || 0);
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); }
+  }, [currentUserId]);
 
   // --- SEARCH HANDLER ---
   useEffect(() => {
@@ -202,7 +237,7 @@ export function Header() {
                       <div className="p-4 text-center text-destructive text-sm">{searchError}</div>
                     ) : (
                       <>
-                        {['people', 'companies', 'jobs', 'posts'].map(type => (
+                        {(['people', 'companies', 'jobs', 'posts'] as (keyof SearchResults)[]).map(type => (
                           searchResults[type].length > 0 && (
                             <div key={type} className="border-b last:border-b-0 border-border">
                               <div className="px-4 pt-3 pb-1 text-xs font-semibold text-muted-foreground uppercase">{type.charAt(0).toUpperCase() + type.slice(1)}</div>
@@ -307,11 +342,11 @@ export function Header() {
 
             {/* Navigation */}
             <nav className="flex items-center space-x-1 lg:space-x-2 flex-shrink-0">
-              {[
+                {[
                 { icon: Home, label: "Home", key: "home", badge: null, href: "/dashboard" },
                 { icon: Users, label: "Network", key: "network", badge: null, href: "/network" },
                 { icon: Briefcase, label: "Jobs", key: "jobs", badge: null, href: "/jobs" },
-                { icon: Bell, label: "Notifications", key: "notifications", badge: null, href: "/notifications" },
+                { icon: Bell, label: "Notifications", key: "notifications", badge: unreadCount > 0 ? String(Math.min(unreadCount, 99)) : null, href: "/notifications" },
               ].map(({ icon: Icon, label, key, badge, href }) => (
                 <Link key={key} href={href}>
                   <Button
@@ -325,9 +360,9 @@ export function Header() {
                     <div className="relative">
                       <Icon className="h-4 w-4 lg:h-5 lg:w-5" />
                       {badge && (
-                        <Badge className="absolute -top-2 -right-2 h-4 w-4 p-0 text-xs bg-mustard hover:bg-mustard text-foreground">
+                        <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-mustard text-foreground text-[10px] leading-4 text-center font-semibold flex items-center justify-center">
                           {badge}
-                        </Badge>
+                        </span>
                       )}
                     </div>
                     <span className="text-xs mt-1 font-medium hidden sm:block">{label}</span>
