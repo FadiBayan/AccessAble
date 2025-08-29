@@ -10,7 +10,15 @@ import Link from "next/link";
 import { getSupabaseClient } from "@/lib/supabaseClient";
 import { useAccessibility } from "@/components/accessibility-provider";
 
-export function NGOProfileSidebar({ showEditButton = true, isEditing = false }: { showEditButton?: boolean, isEditing?: boolean }) {
+export function NGOProfileSidebar({ 
+  showEditButton = true, 
+  isEditing = false,
+  onAvatarUpload 
+}: { 
+  showEditButton?: boolean, 
+  isEditing?: boolean,
+  onAvatarUpload?: (e: React.ChangeEvent<HTMLInputElement>) => void
+}) {
   const { settings } = useAccessibility();
   const [profile, setProfile] = useState<any>(null);
   const [followers, setFollowers] = useState(0);
@@ -116,7 +124,7 @@ export function NGOProfileSidebar({ showEditButton = true, isEditing = false }: 
                 type="file"
                 accept="image/*"
                 className="hidden"
-                onChange={handleFileChange}
+                onChange={onAvatarUpload || handleFileChange}
                 aria-label="Upload new profile photo"
               />
               <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-full">
