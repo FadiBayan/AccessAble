@@ -37,7 +37,6 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAccessibility } from "@/components/accessibility-provider";
 import { UserProfileSidebar } from "@/components/profile/UserProfileSidebar";
-import { ProfilePictureCropper } from "@/components/profile-picture-cropper";
 
 interface ProfileData {
   firstName: string;
@@ -75,8 +74,6 @@ export function ProfileEditPage() {
   const [audioEnabled, setAudioEnabled] = useState(false)
   const [loading, setLoading] = useState(false);
   const [selectedAvatar, setSelectedAvatar] = useState<File | null>(null);
-  const [cropperOpen, setCropperOpen] = useState(false);
-  const [originalImageUrl, setOriginalImageUrl] = useState("");
 
   // 1. Initialize profileData with empty/default values
   const [profileData, setProfileData] = useState<ProfileData>({
@@ -204,35 +201,18 @@ export function ProfileEditPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Create a URL for the selected file to display in cropper
-    const imageUrl = URL.createObjectURL(file);
-    setOriginalImageUrl(imageUrl);
-    setSelectedAvatar(file);
-    setCropperOpen(true);
-  };
-
-  const handleCroppedImageSave = async (croppedImageDataUrl: string) => {
-    if (!selectedAvatar) return;
-
     const supabase = getSupabaseClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
     try {
-      // Convert data URL to blob
-      const response = await fetch(croppedImageDataUrl);
-      const blob = await response.blob();
-      
-      // Create a new file from the cropped image
-      const fileExt = selectedAvatar.name.split('.').pop() || 'jpg';
-      const croppedFile = new File([blob], `cropped-${selectedAvatar.name}`, { type: `image/${fileExt}` });
-
       // Upload to Supabase Storage
+      const fileExt = file.name.split('.').pop();
       const fileName = `${user.id}-${Date.now()}.${fileExt}`;
       
       const { data, error } = await supabase.storage
         .from('avatars')
-        .upload(fileName, croppedFile);
+        .upload(fileName, file);
 
       if (error) {
         console.error('Storage upload error:', error);
@@ -259,13 +239,10 @@ export function ProfileEditPage() {
         throw updateError;
       }
 
-      // Clean up
-      URL.revokeObjectURL(originalImageUrl);
-      setSelectedAvatar(null);
-      setOriginalImageUrl("");
+      alert('Avatar uploaded successfully!');
 
     } catch (error) {
-      console.error('Error uploading cropped avatar:', error);
+      console.error('Error uploading avatar:', error);
       alert('Error uploading avatar: ' + (error as any)?.message || 'Unknown error');
     }
   };
@@ -631,21 +608,6 @@ export function ProfileEditPage() {
           </div>
         </div>
       </div>
-
-      {/* Profile Picture Cropper */}
-      <ProfilePictureCropper
-        isOpen={cropperOpen}
-        onClose={() => {
-          setCropperOpen(false);
-          if (originalImageUrl) {
-            URL.revokeObjectURL(originalImageUrl);
-            setOriginalImageUrl("");
-          }
-          setSelectedAvatar(null);
-        }}
-        onSave={handleCroppedImageSave}
-        originalImage={originalImageUrl}
-      />
     </div>
   );
 } 
