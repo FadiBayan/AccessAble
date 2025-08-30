@@ -56,6 +56,7 @@ interface ProfileData {
   workType: string;
   experience: any[]; // or a more specific type if you have one
   education: any[];  // or a more specific type if you have one
+  skills: string[];
   accessibilityNeeds: string[];
   accommodations: string;
   showEmail: boolean;
@@ -96,6 +97,7 @@ export function ProfileEditPage() {
     workType: "",
     experience: [],
     education: [],
+    skills: [],
     accessibilityNeeds: [],
     accommodations: "",
     showEmail: false,
@@ -168,6 +170,7 @@ export function ProfileEditPage() {
           workType: profile.work_type || "",
           experience: profile.experience || [],
           education: profile.education || [],
+          skills: profile.skills || [],
           accessibilityNeeds: profile.accessibility_needs || [],
           accommodations: profile.accommodations || "",
           showEmail: profile.show_email ?? false,
@@ -309,6 +312,7 @@ export function ProfileEditPage() {
           work_type: profileData.workType,
           experience: profileData.experience,
           education: profileData.education,
+          skills: profileData.skills,
           accessibility_needs: profileData.accessibilityNeeds,
           accommodations: profileData.accommodations,
           show_email: profileData.showEmail,
@@ -483,6 +487,8 @@ export function ProfileEditPage() {
                     </div>
                   </CardContent>
                 </Card>
+
+
               </>
             ) : (
               // Regular User Edit Page
@@ -524,6 +530,83 @@ export function ProfileEditPage() {
                     <div className="space-y-2">
                       <label htmlFor="bio">Bio</label>
                       <Textarea id="bio" value={profileData.bio} onChange={(e) => setProfileData((prev) => ({ ...prev, bio: e.target.value }))} disabled={!isEditing} rows={3} placeholder="Tell us about yourself" />
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Skills Section */}
+                <Card className="bg-card border border-border shadow-lg rounded-2xl p-8">
+                  <CardContent className="space-y-6">
+                    <h3 className="text-xl font-bold text-foreground mb-4">Skills</h3>
+                    <div className="space-y-4">
+                      {/* Add new skill */}
+                      <div className="flex gap-2">
+                        <Input
+                          placeholder="Add a skill (e.g., JavaScript, Project Management, Sign Language)"
+                          value={newSkill}
+                          onChange={(e) => setNewSkill(e.target.value)}
+                          disabled={!isEditing}
+                          onKeyPress={(e) => {
+                            if (e.key === 'Enter' && newSkill.trim() && isEditing) {
+                              e.preventDefault();
+                              if (!profileData.skills.includes(newSkill.trim())) {
+                                setProfileData(prev => ({
+                                  ...prev,
+                                  skills: [...prev.skills, newSkill.trim()]
+                                }));
+                                setNewSkill('');
+                              }
+                            }
+                          }}
+                        />
+                        <Button
+                          onClick={() => {
+                            if (newSkill.trim() && isEditing && !profileData.skills.includes(newSkill.trim())) {
+                              setProfileData(prev => ({
+                                ...prev,
+                                skills: [...prev.skills, newSkill.trim()]
+                              }));
+                              setNewSkill('');
+                            }
+                          }}
+                          disabled={!isEditing || !newSkill.trim() || profileData.skills.includes(newSkill.trim())}
+                          className="bg-mustard text-white hover:bg-mustard/90"
+                        >
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                      </div>
+
+                      {/* Display existing skills */}
+                      {profileData.skills.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {profileData.skills.map((skill, index) => (
+                            <div
+                              key={index}
+                              className="flex items-center gap-2 px-3 py-2 bg-mustard/10 border border-mustard/20 rounded-full text-sm"
+                            >
+                              <span className="text-foreground">{skill}</span>
+                              {isEditing && (
+                                <button
+                                  onClick={() => {
+                                    setProfileData(prev => ({
+                                      ...prev,
+                                      skills: prev.skills.filter((_, i) => i !== index)
+                                    }));
+                                  }}
+                                  className="text-muted-foreground hover:text-foreground transition-colors"
+                                  aria-label={`Remove skill: ${skill}`}
+                                >
+                                  <X className="h-3 w-3" />
+                                </button>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {profileData.skills.length === 0 && !isEditing && (
+                        <p className="text-muted-foreground text-sm">No skills added yet. Click "Edit Profile" to add your skills.</p>
+                      )}
                     </div>
                   </CardContent>
                 </Card>

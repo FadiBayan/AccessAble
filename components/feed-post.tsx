@@ -144,6 +144,14 @@ export function FeedPost({
     setCommentCount(comments);
   }, [comments, postId]);
 
+  // Refresh comment count when component mounts to ensure accuracy
+  useEffect(() => {
+    if (postId) {
+      console.log('Refreshing comment count on mount for post:', postId);
+      refreshCommentCount();
+    }
+  }, [postId]);
+
   const checkUserLikeStatus = async () => {
     if (!currentUserId) {
       console.log('No currentUserId, skipping like status check');
@@ -187,7 +195,7 @@ export function FeedPost({
       console.log('Making database query for comments...');
       
       // Add a small delay to ensure database has updated
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise(resolve => setTimeout(resolve, 200));
       
       const { count, error } = await supabase
         .from('comments')
@@ -376,16 +384,21 @@ export function FeedPost({
         .select()
         .single();
       
-              if (!error) {
-          console.log('Comment inserted successfully:', insertedComment);
-          setCommentText('');
-          fetchComments(); // Refresh comments
-          refreshCommentCount(); // Update comment count
-          console.log('Comment added successfully');
-          onCommentChange?.(); // Notify parent of comment change
-        } else {
-          console.error('Error adding comment:', error);
-        }
+                    if (!error) {
+        console.log('Comment inserted successfully:', insertedComment);
+        setCommentText('');
+        
+        // Immediately update the comment count optimistically
+        setCommentCount(prevCount => prevCount + 1);
+        
+        // Then refresh from database to ensure accuracy
+        fetchComments(); // Refresh comments
+        refreshCommentCount(); // Update comment count
+        console.log('Comment added successfully');
+        onCommentChange?.(); // Notify parent of comment change
+      } else {
+        console.error('Error adding comment:', error);
+      }
     } catch (error) {
       console.error('Error adding comment:', error);
     }
@@ -427,6 +440,9 @@ export function FeedPost({
         .eq('id', commentId);
       
       if (!error) {
+        // Immediately update the comment count optimistically
+        setCommentCount(prevCount => Math.max(0, prevCount - 1));
+        
         fetchComments(); // Refresh comments
         refreshCommentCount(); // Update comment count
         onCommentChange?.(); // Notify parent of comment change
@@ -545,6 +561,8 @@ export function FeedPost({
   const toggleComments = () => {
     if (!showComments) {
       fetchComments();
+      // Also refresh the comment count when opening comments
+      refreshCommentCount();
     }
     setShowComments(!showComments);
   };

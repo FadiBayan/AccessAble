@@ -14,9 +14,13 @@ import { moderateText } from "@/lib/moderation"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Header } from "@/components/header"
+import { useAccessibility } from "@/components/accessibility-provider"
 
 export default function PostJobPage() {
   const router = useRouter();
+  const { settings } = useAccessibility();
+  const isDarkMode = settings.highContrast;
+  
   const [formData, setFormData] = useState({
     jobTitle: "",
     description: "",
@@ -52,9 +56,7 @@ export default function PostJobPage() {
     e.preventDefault()
     setLoading(true)
 
-    // Debug: Log form data before submission
-    console.log('Form data before submission:', formData);
-    console.log('Job type value:', formData.jobType);
+
 
     // Validate required fields
     if (!formData.jobTitle || !formData.description || !formData.companyName || !formData.jobType || !formData.applicationLink) {
@@ -160,24 +162,24 @@ export default function PostJobPage() {
   }
 
   return (
-    <div className="min-h-screen bg-cream">
+    <div className={`min-h-screen ${isDarkMode ? 'bg-[#1f2937]' : 'bg-background'}`}>
       <Header />
       <main id="main-content" className="container-responsive max-w-4xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <Link href="/jobs" className="inline-flex items-center text-mustard hover:text-forest-green mb-4">
+          <Link href="/jobs" className={`inline-flex items-center ${isDarkMode ? 'text-mustard hover:text-yellow-400' : 'text-mustard hover:text-forest-green'} mb-4`}>
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Jobs
           </Link>
-          <h1 className="text-3xl font-bold text-charcoal mb-2">Post a Job</h1>
-          <p className="text-gray-600">Share job opportunities that are accessible and inclusive for people with disabilities.</p>
+          <h1 className={`text-3xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-foreground'}`}>Post a Job</h1>
+          <p className={isDarkMode ? 'text-gray-300' : 'text-muted-foreground'}>Share job opportunities that are accessible and inclusive for people with disabilities.</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Basic Job Information */}
-          <Card>
+          <Card className={isDarkMode ? 'bg-[#374151] border-white/10' : ''}>
             <CardHeader>
-              <CardTitle className="flex items-center">
+              <CardTitle className={`flex items-center ${isDarkMode ? 'text-white' : ''}`}>
                 <Briefcase className="h-5 w-5 mr-2 text-mustard" />
                 Job Information
               </CardTitle>
@@ -185,7 +187,7 @@ export default function PostJobPage() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="jobTitle">Job Title *</label>
+                  <label htmlFor="jobTitle" className={isDarkMode ? 'text-white' : 'text-foreground'}>Job Title *</label>
                   <Input
                     id="jobTitle"
                     value={formData.jobTitle}
@@ -193,10 +195,11 @@ export default function PostJobPage() {
                     placeholder="e.g., Software Engineer"
                     required
                     aria-label="Job title"
+                    className={isDarkMode ? 'bg-[#4B5563] border-white/20 text-white placeholder:text-gray-400' : ''}
                   />
                 </div>
                 <div>
-                  <label htmlFor="companyName">Company Name *</label>
+                  <label htmlFor="companyName" className={isDarkMode ? 'text-white' : 'text-foreground'}>Company Name *</label>
                   <Input
                     id="companyName"
                     value={formData.companyName}
@@ -204,12 +207,13 @@ export default function PostJobPage() {
                     placeholder="e.g., TechCorp Inc."
                     required
                     aria-label="Company name"
+                    className={isDarkMode ? 'bg-[#4B5563] border-white/20 text-white placeholder:text-gray-400' : ''}
                   />
                 </div>
               </div>
 
               <div>
-                <label htmlFor="description">Job Description *</label>
+                <label htmlFor="description" className={isDarkMode ? 'text-white' : 'text-foreground'}>Job Description *</label>
                 <Textarea
                   id="description"
                   value={formData.description}
@@ -218,15 +222,16 @@ export default function PostJobPage() {
                   rows={6}
                   required
                   aria-label="Job description"
+                  className={isDarkMode ? 'bg-[#4B5563] border-white/20 text-white placeholder:text-gray-400' : ''}
                 />
               </div>
             </CardContent>
           </Card>
 
           {/* Job Details */}
-          <Card>
+          <Card className={isDarkMode ? 'bg-[#374151] border-white/10' : ''}>
             <CardHeader>
-              <CardTitle className="flex items-center">
+              <CardTitle className={`flex items-center ${isDarkMode ? 'text-white' : ''}`}>
                 <Building className="h-5 w-5 mr-2 text-mustard" />
                 Job Details
               </CardTitle>
@@ -234,7 +239,7 @@ export default function PostJobPage() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="location">Location</label>
+                  <label htmlFor="location" className={isDarkMode ? 'text-white' : 'text-foreground'}>Location</label>
                   <Input
                     id="location"
                     value={formData.location}
@@ -242,6 +247,7 @@ export default function PostJobPage() {
                     placeholder="e.g., New York, NY"
                     disabled={formData.isRemote}
                     aria-label="Job location"
+                    className={isDarkMode ? 'bg-[#4B5563] border-white/20 text-white placeholder:text-gray-400' : ''}
                   />
                 </div>
                 <div className="flex items-center space-x-2">
@@ -250,44 +256,46 @@ export default function PostJobPage() {
                     checked={formData.isRemote}
                     onCheckedChange={(checked) => handleInputChange("isRemote", checked)}
                   />
-                  <label htmlFor="isRemote">Remote position</label>
+                  <label htmlFor="isRemote" className={isDarkMode ? 'text-white' : 'text-foreground'}>Remote position</label>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                  <div>
-                   <label htmlFor="jobType">Job Type *</label>
-                   <Select value={formData.jobType} onValueChange={(value) => handleInputChange("jobType", value)}>
-                     <SelectTrigger>
-                       <SelectValue placeholder="Select job type" />
-                     </SelectTrigger>
-                     <SelectContent>
-                       <SelectItem value="Full-time">Full-time</SelectItem>
-                       <SelectItem value="Part-time">Part-time</SelectItem>
-                       <SelectItem value="Contract">Contract</SelectItem>
-                       <SelectItem value="Internship">Internship</SelectItem>
-                       <SelectItem value="Freelance">Freelance</SelectItem>
-                     </SelectContent>
-                   </Select>
+                   <label htmlFor="jobType" className={isDarkMode ? 'text-white' : 'text-foreground'}>Job Type *</label>
+                   <select
+                     value={formData.jobType}
+                     onChange={(e) => setFormData(prev => ({ ...prev, jobType: e.target.value }))}
+                     className={`w-full h-10 rounded-md border px-3 py-2 text-sm ${isDarkMode ? 'bg-[#4B5563] border-white/20 text-white' : 'bg-background border-input'}`}
+                     required
+                   >
+                     <option value="">Select job type</option>
+                     <option value="Full-time">Full-time</option>
+                     <option value="Part-time">Part-time</option>
+                     <option value="Contract">Contract</option>
+                     <option value="Internship">Internship</option>
+                     <option value="Freelance">Freelance</option>
+                   </select>
                    {formData.jobType && (
-                     <p className="text-sm text-green-600 mt-1">✓ Selected: {formData.jobType}</p>
+                     <p className={`text-sm mt-1 ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}>✓ Selected: {formData.jobType}</p>
                    )}
                  </div>
                 <div>
-                  <label htmlFor="salaryRange">Salary Range (Optional)</label>
+                  <label htmlFor="salaryRange" className={isDarkMode ? 'text-white' : 'text-foreground'}>Salary Range (Optional)</label>
                   <Input
                     id="salaryRange"
                     value={formData.salaryRange}
                     onChange={(e) => handleInputChange("salaryRange", e.target.value)}
                     placeholder="e.g., $50,000 - $70,000"
                     aria-label="Salary range"
+                    className={isDarkMode ? 'bg-[#4B5563] border-white/20 text-white placeholder:text-gray-400' : ''}
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="applicationLink">Application Link *</label>
+                  <label htmlFor="applicationLink" className={isDarkMode ? 'text-white' : 'text-foreground'}>Application Link *</label>
                   <Input
                     id="applicationLink"
                     value={formData.applicationLink}
@@ -296,16 +304,18 @@ export default function PostJobPage() {
                     type="url"
                     required
                     aria-label="Application link"
+                    className={isDarkMode ? 'bg-[#4B5563] border-white/20 text-white placeholder:text-gray-400' : ''}
                   />
                 </div>
                 <div>
-                  <label htmlFor="deadline">Application Deadline (Optional)</label>
+                  <label htmlFor="deadline" className={isDarkMode ? 'text-white' : 'text-foreground'}>Application Deadline (Optional)</label>
                   <Input
                     id="deadline"
                     value={formData.deadline}
                     onChange={(e) => handleInputChange("deadline", e.target.value)}
                     type="date"
                     aria-label="Application deadline"
+                    className={isDarkMode ? 'bg-[#4B5563] border-white/20 text-white' : ''}
                   />
                 </div>
               </div>
@@ -313,13 +323,13 @@ export default function PostJobPage() {
           </Card>
 
           {/* Accessibility Features */}
-          <Card>
+          <Card className={isDarkMode ? 'bg-[#374151] border-white/10' : ''}>
             <CardHeader>
-              <CardTitle className="flex items-center">
+              <CardTitle className={`flex items-center ${isDarkMode ? 'text-white' : ''}`}>
                 <Accessibility className="h-5 w-5 mr-2 text-mustard" />
                 Accessibility Features
               </CardTitle>
-              <p className="text-sm text-gray-600">Select the accessibility accommodations your company provides</p>
+              <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-muted-foreground'}`}>Select the accessibility accommodations your company provides</p>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -329,7 +339,7 @@ export default function PostJobPage() {
                     checked={accessibilityFeatures.screenReaderSupport}
                     onCheckedChange={(checked) => handleAccessibilityChange("screenReaderSupport", checked)}
                   />
-                  <label htmlFor="screenReaderSupport">Screen Reader Support</label>
+                  <label htmlFor="screenReaderSupport" className={isDarkMode ? 'text-white' : 'text-foreground'}>Screen Reader Support</label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Switch
@@ -337,7 +347,7 @@ export default function PostJobPage() {
                     checked={accessibilityFeatures.signLanguageSupport}
                     onCheckedChange={(checked) => handleAccessibilityChange("signLanguageSupport", checked)}
                   />
-                  <label htmlFor="signLanguageSupport">Sign Language Support</label>
+                  <label htmlFor="signLanguageSupport" className={isDarkMode ? 'text-white' : 'text-foreground'}>Sign Language Support</label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Switch
@@ -345,7 +355,7 @@ export default function PostJobPage() {
                     checked={accessibilityFeatures.remoteWork}
                     onCheckedChange={(checked) => handleAccessibilityChange("remoteWork", checked)}
                   />
-                  <label htmlFor="remoteWork">Remote Work Options</label>
+                  <label htmlFor="remoteWork" className={isDarkMode ? 'text-white' : 'text-foreground'}>Remote Work Options</label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Switch
@@ -353,7 +363,7 @@ export default function PostJobPage() {
                     checked={accessibilityFeatures.flexibleHours}
                     onCheckedChange={(checked) => handleAccessibilityChange("flexibleHours", checked)}
                   />
-                  <label htmlFor="flexibleHours">Flexible Hours</label>
+                  <label htmlFor="flexibleHours" className={isDarkMode ? 'text-white' : 'text-foreground'}>Flexible Hours</label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Switch
@@ -361,7 +371,7 @@ export default function PostJobPage() {
                     checked={accessibilityFeatures.assistiveTechnology}
                     onCheckedChange={(checked) => handleAccessibilityChange("assistiveTechnology", checked)}
                   />
-                  <label htmlFor="assistiveTechnology">Assistive Technology Provided</label>
+                  <label htmlFor="assistiveTechnology" className={isDarkMode ? 'text-white' : 'text-foreground'}>Assistive Technology Provided</label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Switch
@@ -369,7 +379,7 @@ export default function PostJobPage() {
                     checked={accessibilityFeatures.accessibleOffice}
                     onCheckedChange={(checked) => handleAccessibilityChange("accessibleOffice", checked)}
                   />
-                  <label htmlFor="accessibleOffice">Accessible Office Space</label>
+                  <label htmlFor="accessibleOffice" className={isDarkMode ? 'text-white' : 'text-foreground'}>Accessible Office Space</label>
                 </div>
               </div>
             </CardContent>
@@ -378,14 +388,14 @@ export default function PostJobPage() {
           {/* Submit Button */}
           <div className="flex justify-end space-x-4">
             <Link href="/jobs">
-              <Button variant="outline" type="button">
+              <Button variant="outline" type="button" className={isDarkMode ? 'border-white/20 text-white hover:bg-white/10' : ''}>
                 Cancel
               </Button>
             </Link>
             <Button
               type="submit"
               disabled={loading || !formData.jobTitle || !formData.description || !formData.companyName || !formData.jobType || !formData.applicationLink}
-              className="bg-mustard hover:bg-forest-green text-white"
+              className={isDarkMode ? 'bg-mustard hover:bg-yellow-500 text-white' : 'bg-mustard hover:bg-forest-green text-white'}
             >
               {loading ? "Posting..." : "Post Job"}
             </Button>

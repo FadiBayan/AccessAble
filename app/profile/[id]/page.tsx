@@ -84,20 +84,39 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                   </div>
                 )}
               </div>
-              <div className="flex flex-wrap justify-center gap-4 mb-4">
-                {profile.website && (
-                  <a href={profile.website} target="_blank" rel="noopener noreferrer" className="text-mustard hover:underline font-medium">Website</a>
-                )}
-                {profile.linkedin && (
-                  <a href={profile.linkedin} target="_blank" rel="noopener noreferrer" className="text-mustard hover:underline font-medium">LinkedIn</a>
-                )}
-                {profile.twitter && (
-                  <a href={profile.twitter} target="_blank" rel="noopener noreferrer" className="text-mustard hover:underline font-medium">Twitter</a>
-                )}
-                {profile.github && (
-                  <a href={profile.github} target="_blank" rel="noopener noreferrer" className="text-mustard hover:underline font-medium">GitHub</a>
-                )}
+                          <div className="flex flex-wrap justify-center gap-4 mb-4">
+              {profile.website && (
+                <a href={profile.website} target="_blank" rel="noopener noreferrer" className="text-mustard hover:underline font-medium">Website</a>
+              )}
+              {profile.linkedin && (
+                <a href={profile.linkedin} target="_blank" rel="noopener noreferrer" className="text-mustard hover:underline font-medium">LinkedIn</a>
+              )}
+              {profile.twitter && (
+                <a href={profile.twitter} target="_blank" rel="noopener noreferrer" className="text-mustard hover:underline font-medium">Twitter</a>
+              )}
+              {profile.github && (
+                <a href={profile.github} target="_blank" rel="noopener noreferrer" className="text-mustard hover:underline font-medium">GitHub</a>
+              )}
+            </div>
+            
+            {/* Skills Section */}
+            {profile.skills && profile.skills.length > 0 && (
+              <div className="mt-6">
+                <h3 className="text-lg font-semibold text-foreground mb-3">
+                  {isNGO ? 'Services & Expertise' : 'Skills'}
+                </h3>
+                <div className="flex flex-wrap justify-center gap-2">
+                  {profile.skills.map((skill, index) => (
+                    <span
+                      key={index}
+                      className="inline-block px-3 py-1 bg-mustard/10 text-mustard text-sm rounded-full border border-mustard/20"
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
               </div>
+            )}
             </div>
           </Card>
           <div className="mt-8">

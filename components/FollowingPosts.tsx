@@ -3,12 +3,13 @@
 import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Users, Sparkles } from "lucide-react";
+import { Loader2, Users, Sparkles, User } from "lucide-react";
 import { getSupabaseClient } from "@/lib/supabaseClient";
 import { FeedPost } from "@/components/feed-post";
 
 interface FollowingPostsProps {
   currentUserId?: string;
+  refreshKey?: number; // Add this to force refresh when posts are created
 }
 
 interface Post {
@@ -26,15 +27,23 @@ interface Post {
   author_name: string;
   avatar_url?: string;
   is_following: boolean;
+  is_own_post: boolean;
 }
 
-export function FollowingPosts({ currentUserId }: FollowingPostsProps) {
+export function FollowingPosts({ currentUserId, refreshKey }: FollowingPostsProps) {
+  console.log('=== FollowingPosts component rendered ===');
+  console.log('Props - currentUserId:', currentUserId, 'refreshKey:', refreshKey);
+  
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchPosts = useCallback(async () => {
+    console.log('=== FollowingPosts fetchPosts called ===');
+    console.log('currentUserId:', currentUserId);
+    
     if (!currentUserId) {
+      console.log('No currentUserId, skipping fetch');
       setIsLoading(false);
       return;
     }
@@ -59,12 +68,34 @@ export function FollowingPosts({ currentUserId }: FollowingPostsProps) {
 
       const followingIds = followingData?.map(follow => follow.following_id) || [];
       
-      // Get posts from users being followed
-      const { data: followingPosts, error: followingPostsError } = await supabase
-        .from('posts')
-        .select('*')
-        .in('user_id', followingIds)
-        .order('created_at', { ascending: false });
+      console.log('Following IDs:', followingIds);
+      console.log('Current User ID:', currentUserId);
+      
+      // Get posts from users being followed AND your own posts
+      let followingPosts;
+      let followingPostsError;
+      
+      if (followingIds.length > 0) {
+        // If you're following people, get their posts + your posts
+        const result = await supabase
+          .from('posts')
+          .select('*')
+          .in('user_id', [...followingIds, currentUserId])
+          .order('created_at', { ascending: false });
+        followingPosts = result.data;
+        followingPostsError = result.error;
+      } else {
+        // If you're not following anyone, just get your own posts
+        const result = await supabase
+          .from('posts')
+          .select('*')
+          .eq('user_id', currentUserId)
+          .order('created_at', { ascending: false });
+        followingPosts = result.data;
+        followingPostsError = result.error;
+      }
+      
+      console.log('Following posts result:', followingPosts);
 
       if (followingPostsError) {
         console.error('Error fetching following posts:', followingPostsError);
@@ -72,14 +103,33 @@ export function FollowingPosts({ currentUserId }: FollowingPostsProps) {
         return;
       }
 
-      // Get other posts (suggested)
-      const { data: suggestedPosts, error: suggestedPostsError } = await supabase
-        .from('posts')
-        .select('*')
-        .not('user_id', 'in', `(${followingIds.join(',')})`)
-        .neq('user_id', currentUserId)
-        .order('created_at', { ascending: false })
-        .limit(10);
+      // Get other posts (suggested) - exclude your own posts and following posts
+      let suggestedPosts;
+      let suggestedPostsError;
+      
+      if (followingIds.length > 0) {
+        // If you're following people, exclude their posts and your posts
+        const result = await supabase
+          .from('posts')
+          .select('*')
+          .not('user_id', 'in', `(${[...followingIds, currentUserId].join(',')})`)
+          .order('created_at', { ascending: false })
+          .limit(10);
+        suggestedPosts = result.data;
+        suggestedPostsError = result.error;
+      } else {
+        // If you're not following anyone, just exclude your own posts
+        const result = await supabase
+          .from('posts')
+          .select('*')
+          .neq('user_id', currentUserId)
+          .order('created_at', { ascending: false })
+          .limit(10);
+        suggestedPosts = result.data;
+        suggestedPostsError = result.error;
+      }
+      
+      console.log('Suggested posts result:', suggestedPosts);
 
       if (suggestedPostsError) {
         console.error('Error fetching suggested posts:', suggestedPostsError);
@@ -93,10 +143,14 @@ export function FollowingPosts({ currentUserId }: FollowingPostsProps) {
         ...(suggestedPosts?.map(post => post.user_id) || [])
       ];
 
+      console.log('All user IDs for profile lookup:', allUserIds);
+
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
         .select('id, first_name, last_name, avatar_url, organization_name, account_type')
         .in('id', allUserIds);
+        
+      console.log('Profiles data:', profilesData);
 
       if (profilesError) {
         console.error('Error fetching profiles:', profilesError);
@@ -107,24 +161,44 @@ export function FollowingPosts({ currentUserId }: FollowingPostsProps) {
       // Create a map of profiles
       const profilesMap = new Map(profilesData?.map(profile => [profile.id, profile]) || []);
 
-      // Process following posts
-      const processedFollowingPosts = followingPosts?.map(post => ({
-        ...post,
-        author_name: getDisplayName(profilesMap.get(post.user_id)),
-        avatar_url: profilesMap.get(post.user_id)?.avatar_url,
-        is_following: true
-      })) || [];
+      // Process following posts and your own posts
+      const processedFollowingPosts = followingPosts?.map(post => {
+        const isOwnPost = post.user_id === currentUserId;
+        const isFollowing = !isOwnPost && followingIds.includes(post.user_id);
+        
+        console.log(`Post ${post.id}: user_id=${post.user_id}, isOwnPost=${isOwnPost}, isFollowing=${isFollowing}`);
+        
+        return {
+          ...post,
+          author_name: getDisplayName(profilesMap.get(post.user_id)),
+          avatar_url: profilesMap.get(post.user_id)?.avatar_url,
+          is_following: isFollowing,
+          is_own_post: isOwnPost
+        };
+      }) || [];
 
       // Process suggested posts
       const processedSuggestedPosts = suggestedPosts?.map(post => ({
         ...post,
         author_name: getDisplayName(profilesMap.get(post.user_id)),
         avatar_url: profilesMap.get(post.user_id)?.avatar_url,
-        is_following: false
+        is_following: false,
+        is_own_post: false
       })) || [];
 
       // Combine posts with following posts first
       const allPosts = [...processedFollowingPosts, ...processedSuggestedPosts];
+      
+      console.log('Final posts breakdown:');
+      console.log('- Following posts (including own):', processedFollowingPosts.length);
+      console.log('- Suggested posts:', processedSuggestedPosts.length);
+      console.log('- Total posts:', allPosts.length);
+      
+      // Log each post's categorization
+      allPosts.forEach(post => {
+        console.log(`Post "${post.title}": user_id=${post.user_id}, is_own_post=${post.is_own_post}, is_following=${post.is_following}`);
+      });
+      
       setPosts(allPosts);
 
     } catch (error) {
@@ -145,7 +219,7 @@ export function FollowingPosts({ currentUserId }: FollowingPostsProps) {
 
   useEffect(() => {
     fetchPosts();
-  }, [fetchPosts]);
+  }, [fetchPosts, refreshKey]);
 
   if (isLoading) {
     return (
@@ -189,8 +263,8 @@ export function FollowingPosts({ currentUserId }: FollowingPostsProps) {
   }
 
   // Separate following and suggested posts
-  const followingPosts = posts.filter(post => post.is_following);
-  const suggestedPosts = posts.filter(post => !post.is_following);
+  const followingPosts = posts.filter(post => post.is_following || post.is_own_post);
+  const suggestedPosts = posts.filter(post => !post.is_following && !post.is_own_post);
 
   return (
     <div className="space-y-6">
@@ -199,17 +273,24 @@ export function FollowingPosts({ currentUserId }: FollowingPostsProps) {
         <div className="space-y-6">
           <div className="flex items-center gap-2 mb-4">
             <Users className="h-5 w-5 text-mustard" />
-            <h2 className="text-lg font-semibold text-foreground">Posts from People You Follow</h2>
+            <h2 className="text-lg font-semibold text-foreground">Your Posts & Following</h2>
             <Badge className="bg-mustard text-white">{followingPosts.length}</Badge>
           </div>
           
           {followingPosts.map((post) => (
             <div key={post.id} className="relative">
               <div className="absolute top-4 right-4 z-10">
-                <Badge className="bg-mustard text-white flex items-center gap-1">
-                  <Users className="h-3 w-3" />
-                  Following
-                </Badge>
+                {post.is_own_post ? (
+                  <Badge className="bg-blue-500 text-white flex items-center gap-1">
+                    <User className="h-3 w-3" />
+                    Your Post
+                  </Badge>
+                ) : (
+                  <Badge className="bg-mustard text-white flex items-center gap-1">
+                    <Users className="h-3 w-3" />
+                    Following
+                  </Badge>
+                )}
               </div>
 
               <FeedPost

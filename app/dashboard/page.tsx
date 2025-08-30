@@ -73,7 +73,7 @@ export default function DashboardPage() {
           {/* Main Feed - Full width on mobile, 6 columns on large screens */}
           <div className="lg:col-span-6 space-y-4 sm:space-y-6">
             <PostCreation onPostCreated={handlePostCreated} />
-            <FollowingPosts currentUserId={currentUserId} key={refreshKey} />
+            <FollowingPosts currentUserId={currentUserId} refreshKey={refreshKey} key={refreshKey} />
           </div>
 
           {/* Right Sidebar - Hidden on mobile, shown on large screens */}

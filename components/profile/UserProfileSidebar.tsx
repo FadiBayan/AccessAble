@@ -10,6 +10,7 @@ interface ProfileData {
   avatarUrl?: string;
   accountType?: string;
   title?: string;
+  skills?: string[];
 }
 
 interface ProfileSidebarProps {
@@ -61,6 +62,30 @@ export function UserProfileSidebar({ profileData, isEditing, onAvatarUpload }: P
       <CardContent className="pt-16 pb-6 text-center">
         <div className="text-xl font-bold text-center mb-1 text-foreground">{name}</div>
         {subtitle && <div className="text-sm text-muted-foreground text-center mb-2">{subtitle}</div>}
+        
+        {/* Skills Section */}
+        {profileData.skills && profileData.skills.length > 0 && (
+          <div className="mt-4 text-left">
+            <h4 className="text-sm font-semibold text-foreground mb-2">
+              {isNGO ? 'Services & Expertise' : 'Skills'}
+            </h4>
+            <div className="flex flex-wrap gap-1">
+              {profileData.skills.slice(0, 6).map((skill, index) => (
+                <span
+                  key={index}
+                  className="inline-block px-2 py-1 bg-mustard/10 text-mustard text-xs rounded-full border border-mustard/20"
+                >
+                  {skill}
+                </span>
+              ))}
+              {profileData.skills.length > 6 && (
+                <span className="inline-block px-2 py-1 bg-muted text-muted-foreground text-xs rounded-full">
+                  +{profileData.skills.length - 6} more
+                </span>
+              )}
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
