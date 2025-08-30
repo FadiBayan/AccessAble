@@ -40,19 +40,19 @@ function SearchResults() {
           .select('id, organization_name, avatar_url, account_type')
           .or(`organization_name.like.%${query}%`)
           .in('account_type', ['NGO', 'NGO / Organization']);
-        // Jobs (posts with is_job_post)
+        // Jobs (posts with is_job_post) - Case insensitive search
         const { data: jobs, error: jobsError } = await supabase
           .from('posts')
           .select('id, title, job_metadata, created_at')
           .eq('is_job_post', true)
-          .or(`title.like.%${query}%,content.like.%${query}%,job_metadata->>company_name.like.%${query}%`)
+          .or(`title.ilike.%${query}%,content.ilike.%${query}%,job_metadata->>company_name.ilike.%${query}%`)
           .order('created_at', { ascending: false });
-        // Posts (not jobs)
+        // Posts (not jobs) - Case insensitive search
         const { data: posts, error: postsError } = await supabase
           .from('posts')
           .select('id, title, content, created_at')
           .eq('is_job_post', false)
-          .or(`title.like.%${query}%,content.like.%${query}%`)
+          .or(`title.ilike.%${query}%,content.ilike.%${query}%`)
           .order('created_at', { ascending: false });
         if (peopleError || companiesError || jobsError || postsError) {
           setError("Error searching. Try again.");

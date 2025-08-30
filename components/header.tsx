@@ -112,20 +112,20 @@ export function Header() {
           .or(`organization_name.like.%${searchValue}%`)
           .in('account_type', ['NGO', 'NGO / Organization'])
           .limit(3);
-        // Jobs (posts with is_job_post)
+        // Jobs (posts with is_job_post) - Case insensitive search
         const { data: jobs, error: jobsError } = await supabase
           .from('posts')
           .select('id, title, job_metadata, created_at')
           .eq('is_job_post', true)
-          .or(`title.like.%${searchValue}%,content.like.%${searchValue}%,job_metadata->>company_name.like.%${searchValue}%`)
+          .or(`title.ilike.%${searchValue}%,content.ilike.%${searchValue}%,job_metadata->>company_name.ilike.%${searchValue}%`)
           .order('created_at', { ascending: false })
           .limit(3);
-        // Posts (not jobs)
+        // Posts (not jobs) - Case insensitive search
         const { data: posts, error: postsError } = await supabase
           .from('posts')
           .select('id, title, content, created_at')
           .eq('is_job_post', false)
-          .or(`title.like.%${searchValue}%,content.like.%${searchValue}%`)
+          .or(`title.ilike.%${searchValue}%,content.ilike.%${searchValue}%`)
           .order('created_at', { ascending: false })
           .limit(3);
         if (peopleError || companiesError || jobsError || postsError) {

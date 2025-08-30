@@ -33,9 +33,9 @@ const replacementWords = {
 export function filterContent(text: string): string {
   if (!text) return text
   
-  let filteredText = text.toLowerCase()
+  let filteredText = text
   
-  // Replace bad words with asterisks
+  // Replace bad words with asterisks while preserving case
   badWords.forEach(badWord => {
     const regex = new RegExp(`\\b${badWord}\\b`, 'gi')
     const replacement = replacementWords[badWord as keyof typeof replacementWords] || '*'.repeat(badWord.length)
