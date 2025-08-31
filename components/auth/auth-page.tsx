@@ -6,7 +6,7 @@ import { useEffect, useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { EyeOff, Shield, VolumeX, Contrast, Moon } from "lucide-react"
+import { EyeOff, Shield, VolumeX, Contrast, Moon, Type, Volume2, Accessibility, Eye } from "lucide-react"
 import { getSupabaseClient } from '@/lib/supabaseClient';
 import { useRouter } from 'next/navigation';
 import { Textarea } from "@/components/ui/textarea";

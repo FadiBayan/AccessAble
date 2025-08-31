@@ -296,7 +296,7 @@ export default function PostDetailPage() {
                 </a>
               </div>
             )}
-          </div>
+        </div>
         )}
         
 
