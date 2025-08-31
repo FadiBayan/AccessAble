@@ -639,7 +639,10 @@ export function FeedPost({
   };
 
   return (
-    <Card className="p-5 space-y-2 rounded-xl shadow-md bg-card hover:shadow-lg transition">
+    <Card 
+      className={`p-5 space-y-2 rounded-xl shadow-md bg-card transition ${isJobPost ? 'cursor-pointer hover:shadow-lg hover:scale-[1.02] hover:border-mustard/20' : 'hover:shadow-lg'}`}
+      onClick={isJobPost ? () => window.open(`/posts/${postId}`, '_blank') : undefined}
+    >
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -729,7 +732,16 @@ export function FeedPost({
           </div>
         ) : (
           <>
-            {title && <div className="font-semibold text-base mb-1 text-foreground">{title}</div>}
+            {title && (
+              <div className="font-semibold text-base mb-1 text-foreground flex items-center gap-2">
+                {title}
+                {isJobPost && (
+                  <span className="text-xs text-mustard bg-mustard/10 px-2 py-1 rounded-full">
+                    View job details →
+                  </span>
+                )}
+              </div>
+            )}
             <div className="text-sm leading-relaxed text-foreground">{content}</div>
             {imageUrl && (
               <div className="mb-3">

@@ -181,44 +181,125 @@ export default function PostDetailPage() {
           </Link>
         </div>
 
-        {/* Post */}
-        <div className="bg-card rounded-lg shadow-sm border border-border">
-          <FeedPost
-            postId={post.id}
-            author={post.author_name}
-            title={post.title || ""}
-            time={new Date(post.created_at).toLocaleString('en-US', {
-              year: 'numeric',
-              month: 'numeric',
-              day: 'numeric',
-              hour: 'numeric',
-              minute: 'numeric',
-              hour12: true
-            })}
-            content={post.content || ""}
-            likes={post.likes}
-            comments={post.comments}
-            shares={post.shares}
-            avatar={post.avatar_url}
-            isVerified={false}
-            imageUrl={post.image_url}
-            videoUrl={post.video_url}
-            isJobPost={post.is_job_post}
-            currentUserId={currentUserId || undefined}
-            postUserId={post.user_id}
-            onPostUpdate={(postId, newTitle, newContent) => {
-              setPost(prev => prev ? {
-                ...prev,
-                title: newTitle,
-                content: newContent
-              } : null);
-            }}
-            onPostDelete={(postId) => {
-              router.push('/dashboard');
-            }}
-            jobMetadata={post.job_metadata}
-          />
-        </div>
+        {/* Job Details Section - Only show for job posts */}
+        {post.is_job_post && post.job_metadata && (
+          <div className="bg-card rounded-lg shadow-sm border border-border p-6 mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <h1 className="text-2xl font-bold text-foreground">{post.title}</h1>
+              <div className="text-sm text-muted-foreground">
+                Posted by {post.author_name}
+              </div>
+            </div>
+            
+            {/* Job Details Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              {post.job_metadata.company_name && (
+                <div className="flex items-center gap-2">
+                  <span className="text-muted-foreground">Company:</span>
+                  <span className="font-medium text-foreground">{post.job_metadata.company_name}</span>
+                </div>
+              )}
+              
+              {post.job_metadata.location && (
+                <div className="flex items-center gap-2">
+                  <span className="text-muted-foreground">Location:</span>
+                  <span className="font-medium text-foreground">{post.job_metadata.location}</span>
+                  {post.job_metadata.is_remote && (
+                    <span className="text-xs bg-mustard/20 text-mustard px-2 py-1 rounded-full">Remote</span>
+                  )}
+                </div>
+              )}
+              
+              {post.job_metadata.job_type && (
+                <div className="flex items-center gap-2">
+                  <span className="text-muted-foreground">Job Type:</span>
+                  <span className="font-medium text-foreground">{post.job_metadata.job_type}</span>
+                </div>
+              )}
+              
+              {post.job_metadata.salary_range && (
+                <div className="flex items-center gap-2">
+                  <span className="text-muted-foreground">Salary:</span>
+                  <span className="font-medium text-foreground">{post.job_metadata.salary_range}</span>
+                </div>
+              )}
+              
+              {post.job_metadata.deadline && (
+                <div className="flex items-center gap-2">
+                  <span className="text-muted-foreground">Deadline:</span>
+                  <span className="font-medium text-foreground">{post.job_metadata.deadline}</span>
+                </div>
+              )}
+            </div>
+            
+            {/* Job Description */}
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold text-foreground mb-2">Job Description</h3>
+              <div className="text-foreground leading-relaxed">{post.content}</div>
+            </div>
+            
+            {/* Accessibility Features */}
+            {post.job_metadata.accessibility_features && (
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold text-foreground mb-2">Accessibility Features</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  {post.job_metadata.accessibility_features.remoteWork && (
+                    <div className="flex items-center gap-2 text-sm text-foreground">
+                      <span className="text-green-600 dark:text-green-400">✓</span>
+                      <span>Remote work options</span>
+                    </div>
+                  )}
+                  {post.job_metadata.accessibility_features.flexibleHours && (
+                    <div className="flex items-center gap-2 text-sm text-foreground">
+                      <span className="text-green-600 dark:text-green-400">✓</span>
+                      <span>Flexible hours</span>
+                    </div>
+                  )}
+                  {post.job_metadata.accessibility_features.accessibleOffice && (
+                    <div className="flex items-center gap-2 text-sm text-foreground">
+                      <span className="text-green-600 dark:text-green-400">✓</span>
+                      <span>Accessible office space</span>
+                    </div>
+                  )}
+                  {post.job_metadata.accessibility_features.assistiveTechnology && (
+                    <div className="flex items-center gap-2 text-sm text-foreground">
+                      <span className="text-green-600 dark:text-green-400">✓</span>
+                      <span>Assistive technology provided</span>
+                    </div>
+                  )}
+                  {post.job_metadata.accessibility_features.screenReaderSupport && (
+                    <div className="flex items-center gap-2 text-sm text-foreground">
+                      <span className="text-green-600 dark:text-green-400">✓</span>
+                      <span>Screen reader support</span>
+                    </div>
+                  )}
+                  {post.job_metadata.accessibility_features.signLanguageSupport && (
+                    <div className="flex items-center gap-2 text-sm text-foreground">
+                      <span className="text-green-600 dark:text-green-400">✓</span>
+                      <span>Sign language support</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+            
+            {/* Apply Button */}
+            {post.job_metadata.application_link && (
+              <div className="flex justify-center">
+                <a
+                  href={post.job_metadata.application_link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-mustard hover:bg-yellow-500 text-white font-semibold px-8 py-3 rounded-lg transition-colors inline-flex items-center gap-2"
+                >
+                  Apply for this position →
+                </a>
+              </div>
+            )}
+          </div>
+        )}
+        
+
       </div>
     </div>
   );

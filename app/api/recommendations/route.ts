@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
     // hydrate minimal job details for frontend
     const payload = results.map((r: any) => ({
       id: r.job.id,
-      title: r.job.title || r.job.job_metadata?.title || 'Job',
+      title: r.job.title || 'Job',
       description: r.job.description || r.job.content || '',
       job_metadata: r.job.job_metadata || null,
       score: r.score,

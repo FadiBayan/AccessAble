@@ -29,27 +29,32 @@ export async function fetchProfilesAndJobs(supabase: SupabaseClient): Promise<{ 
 
   if (profilesError) throw profilesError
 
-  // Try jobs table first
+  // Use posts table where is_job_post = true (primary source)
   let usedPostsFallback = false
   let jobs: JobRow[] = []
 
-  const { data: jobsData, error: jobsError } = await supabase
-    .from('jobs')
-    .select('id, title, description')
+  const { data: postsData, error: postsError } = await supabase
+    .from('posts')
+    .select('id, title, content, job_metadata')
+    .eq('is_job_post', true)
     .limit(1000)
-
-  if (!jobsError && Array.isArray(jobsData)) {
-    jobs = jobsData
-  } else {
-    // Fallback to posts where is_job_post = true
-    usedPostsFallback = true
-    const { data: postsData, error: postsError } = await supabase
-      .from('posts')
-      .select('id, title, content, job_metadata')
-      .eq('is_job_post', true)
-      .limit(1000)
-    if (postsError) throw postsError
+  
+  if (!postsError && Array.isArray(postsData)) {
     jobs = (postsData || []).map((p: any) => ({ id: p.id, title: p.title, content: p.content, job_metadata: p.job_metadata }))
+    usedPostsFallback = true
+  } else {
+    // Fallback to jobs table if posts table fails
+    const { data: jobsData, error: jobsError } = await supabase
+      .from('jobs')
+      .select('id, title, description')
+      .limit(1000)
+    
+    if (!jobsError && Array.isArray(jobsData)) {
+      jobs = jobsData
+      usedPostsFallback = false
+    } else {
+      throw new Error('No job data available')
+    }
   }
 
   return { profiles: (profiles || []) as UserProfile[], jobs, usedPostsFallback }
@@ -96,25 +101,31 @@ export async function computeRecommendationsForUser(supabase: SupabaseClient, us
   if (profileError) throw profileError
   if (!profile) return { results: [], usedPostsFallback: false }
 
-  // Try jobs table first
+  // Use posts table where is_job_post = true (primary source)
   let usedPostsFallback = false
   let jobs: JobRow[] = []
-  const { data: jobsData, error: jobsError } = await supabase
-    .from('jobs')
-    .select('id, title, description')
+  const { data: postsData, error: postsError } = await supabase
+    .from('posts')
+    .select('id, title, content, job_metadata')
+    .eq('is_job_post', true)
     .limit(1000)
-
-  if (!jobsError && Array.isArray(jobsData)) {
-    jobs = jobsData
-  } else {
-    usedPostsFallback = true
-    const { data: postsData, error: postsError } = await supabase
-      .from('posts')
-      .select('id, title, content, job_metadata')
-      .eq('is_job_post', true)
-      .limit(1000)
-    if (postsError) throw postsError
+  
+  if (!postsError && Array.isArray(postsData)) {
     jobs = (postsData || []).map((p: any) => ({ id: p.id, title: p.title, content: p.content, job_metadata: p.job_metadata }))
+    usedPostsFallback = true
+  } else {
+    // Fallback to jobs table if posts table fails
+    const { data: jobsData, error: jobsError } = await supabase
+      .from('jobs')
+      .select('id, title, description')
+      .limit(1000)
+    
+    if (!jobsError && Array.isArray(jobsData)) {
+      jobs = jobsData
+      usedPostsFallback = false
+    } else {
+      return { results: [], usedPostsFallback: false }
+    }
   }
 
   if (jobs.length === 0) return { results: [], usedPostsFallback }

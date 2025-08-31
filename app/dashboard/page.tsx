@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { getSupabaseClient } from '@/lib/supabaseClient';
 import { Header } from "../../components/header"
 import { PostCreation } from "../../components/post-creation"
@@ -140,12 +141,17 @@ export default function DashboardPage() {
                     </div>
                   ) : (
                     recommendations.map((rec) => (
-                      <div key={rec.id} className="p-3 rounded-md border border-border bg-background">
-                        <div className="text-sm font-medium text-foreground">{rec.title}</div>
-                        {rec.description ? (
-                          <p className="text-xs text-muted-foreground mt-1 line-clamp-3">{rec.description}</p>
-                        ) : null}
-                      </div>
+                      <Link key={rec.id} href={`/posts/${rec.id}`} className="block">
+                        <div className="p-3 rounded-md border border-border bg-background hover:bg-accent transition-colors cursor-pointer">
+                          <div className="text-sm font-medium text-foreground">{rec.title}</div>
+                          {rec.description ? (
+                            <p className="text-xs text-muted-foreground mt-1 line-clamp-3">{rec.description}</p>
+                          ) : null}
+                          {rec.job_metadata?.company_name && (
+                            <p className="text-xs text-mustard mt-1">{rec.job_metadata.company_name}</p>
+                          )}
+                        </div>
+                      </Link>
                     ))
                   )}
                 </div>

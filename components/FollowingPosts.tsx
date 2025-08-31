@@ -280,12 +280,7 @@ export function FollowingPosts({ currentUserId, refreshKey }: FollowingPostsProp
           {followingPosts.map((post) => (
             <div key={post.id} className="relative">
               <div className="absolute top-4 right-4 z-10">
-                {post.is_own_post ? (
-                  <Badge className="bg-blue-500 text-white flex items-center gap-1">
-                    <User className="h-3 w-3" />
-                    Your Post
-                  </Badge>
-                ) : (
+                {!post.is_own_post && (
                   <Badge className="bg-mustard text-white flex items-center gap-1">
                     <Users className="h-3 w-3" />
                     Following
