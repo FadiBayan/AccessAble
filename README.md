@@ -104,6 +104,12 @@ NEXT_PUBLIC_SUPABASE_URL=https://orrvmkjcjfctubwrqgxd.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9ycnZta2pjamZjdHVid3JxZ3hkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3NzM4MjIsImV4cCI6MjA2ODM0OTgyMn0.0w8S0wYDrbYseQFngnNcmE8Sw0B4hfQ-qiIMRgZR8-g
 
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
+
+# AI Moderation (Google Perspective API)
+PERSPECTIVE_API_KEY=AIzaSyDHUZ5ZjT2RY6_K1Mypg63HzlUGvIcxTzk
+
+# Job Matching / Recommendations (Hugging Face API)
+HUGGINGFACE_API_KEY=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
 ```
 
 👉 That’s it.
