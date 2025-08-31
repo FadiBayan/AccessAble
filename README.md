@@ -43,7 +43,6 @@ AccessAble is a professional networking platform designed with accessibility at 
 
 ### 🔔 Notifications
 - Real-time notifications (likes, comments, follows, job alerts)
-- Email notifications
 - Per-user preferences
 
 ### ♿ Accessibility (WCAG 2.1 AA)
