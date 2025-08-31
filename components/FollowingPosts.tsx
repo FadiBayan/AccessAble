@@ -6,6 +6,7 @@ import { FeedPost } from "@/components/feed-post";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Loader2, Users, Sparkles } from "lucide-react";
+import { formatPostTime } from '@/lib/utils';
 
 interface TransformedPost {
   id: string;
@@ -252,14 +253,8 @@ export function FollowingPosts({ currentUserId, refreshKey }: FollowingPostsProp
                   postId={post.id}
                   author={post.author_name}
                   title={post.title || ""}
-                  time={new Date(post.created_at).toLocaleString('en-US', {
-                    year: 'numeric',
-                    month: 'numeric',
-                    day: 'numeric',
-                    hour: 'numeric',
-                    minute: 'numeric',
-                    hour12: true
-                  })}
+                  time={formatPostTime(post.created_at)}
+                  createdAt={post.created_at}
                   content={post.content || ""}
                   likes={post.likes || 0}
                   comments={post.comments || 0}
@@ -299,14 +294,8 @@ export function FollowingPosts({ currentUserId, refreshKey }: FollowingPostsProp
                   postId={post.id}
                   author={post.author_name}
                   title={post.title || ""}
-                  time={new Date(post.created_at).toLocaleString('en-US', {
-                    year: 'numeric',
-                    month: 'numeric',
-                    day: 'numeric',
-                    hour: 'numeric',
-                    minute: 'numeric',
-                    hour12: true
-                  })}
+                  time={formatPostTime(post.created_at)}
+                  createdAt={post.created_at}
                   content={post.content || ""}
                   likes={post.likes || 0}
                   comments={post.comments || 0}

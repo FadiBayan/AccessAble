@@ -42,6 +42,7 @@ interface FeedPostProps {
   author: string
   title: string
   time: string
+  createdAt?: string // NEW: original timestamp for full date display
   content: string
   likes: number
   comments: number
@@ -80,6 +81,7 @@ export function FeedPost({
   author, 
   title, 
   time, 
+  createdAt,
   content, 
   likes, 
   comments, 
@@ -651,6 +653,15 @@ export function FeedPost({
               avatarUrl={avatar}
               name={author}
               subtitle={isJobPost ? "Job" : undefined}
+              time={time}
+              fullTime={createdAt ? new Date(createdAt).toLocaleString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric', 
+                hour: 'numeric', 
+                minute: 'numeric', 
+                hour12: true 
+              }) : undefined}
               isEditing={false}
               compact={true}
             />

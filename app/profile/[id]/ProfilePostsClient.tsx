@@ -2,6 +2,7 @@
 import React from "react";
 import { getSupabaseClient } from '@/lib/supabaseClient';
 import { FeedPost } from '@/components/feed-post';
+import { formatPostTime } from '@/lib/utils';
 
 export default function ProfilePostsClient({ posts, profile, ngo }: { posts: any[]; profile: any; ngo: boolean }) {
   const [currentUserId, setCurrentUserId] = React.useState<string | null>(null);
@@ -28,7 +29,7 @@ export default function ProfilePostsClient({ posts, profile, ngo }: { posts: any
               <div className="flex gap-4 pb-2">
                 {jobPosts.map((post) => (
                   <div key={post.id} className="min-w-[320px] max-w-[360px] w-[360px] bg-card border border-border rounded-lg p-4">
-                    <div className="text-sm text-muted-foreground mb-1">{new Date(post.created_at).toLocaleDateString()}</div>
+                    <div className="text-sm text-muted-foreground mb-1">{formatPostTime(post.created_at)}</div>
                     <div className="font-semibold text-foreground mb-1 truncate">{post.title || 'Job'}</div>
                     <div className="text-sm text-muted-foreground line-clamp-3 mb-3">{post.content || ''}</div>
                     
@@ -92,7 +93,8 @@ export default function ProfilePostsClient({ posts, profile, ngo }: { posts: any
                 postId={post.id}
                 author={profile.user_metadata?.displayName || (ngo ? profile.organization_name : `${profile.first_name} ${profile.last_name}`)}
                 title={post.title || ''}
-                time={new Date(post.created_at).toLocaleString('en-US', { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true })}
+                time={formatPostTime(post.created_at)}
+                createdAt={post.created_at}
                 content={post.content || ''}
                 likes={post.likes || 0}
                 comments={post.comments || 0}

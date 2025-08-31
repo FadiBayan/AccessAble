@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { getSupabaseClient } from '@/lib/supabaseClient';
 import { FeedPost } from "@/components/feed-post";
+import { formatPostTime } from '@/lib/utils';
 
 interface TransformedPost {
   id: string;
@@ -205,14 +206,8 @@ export default function PostsList() {
                 postId={post.id}
                 author={post.author_name}
                 title={post.title || ""}
-                time={new Date(post.created_at).toLocaleString('en-US', {
-                  year: 'numeric',
-                  month: 'numeric',
-                  day: 'numeric',
-                  hour: 'numeric',
-                  minute: 'numeric',
-                  hour12: true
-                })}
+                time={formatPostTime(post.created_at)}
+                createdAt={post.created_at}
                 content={post.content || ""}
                 likes={post.likes || 0}
                 comments={post.comments || 0}

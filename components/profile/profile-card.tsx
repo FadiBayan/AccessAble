@@ -9,12 +9,14 @@ interface ProfileCardProps {
   avatarUrl?: string;
   name: string;
   subtitle?: string;
+  time?: string; // NEW: for displaying post time
+  fullTime?: string; // NEW: for tooltip with full date/time
   isEditing?: boolean;
   onAvatarUpload?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   compact?: boolean; // NEW: for post feed
 }
 
-export function ProfileCard({ avatarUrl, name, subtitle, isEditing = false, onAvatarUpload, compact = false }: ProfileCardProps) {
+export function ProfileCard({ avatarUrl, name, subtitle, time, fullTime, isEditing = false, onAvatarUpload, compact = false }: ProfileCardProps) {
   const [showProfilePicture, setShowProfilePicture] = useState(false);
 
   const handleAvatarClick = (e: React.MouseEvent | React.KeyboardEvent) => {
@@ -56,6 +58,7 @@ export function ProfileCard({ avatarUrl, name, subtitle, isEditing = false, onAv
           <div>
             <div className="font-semibold text-sm leading-tight">{name}</div>
             {subtitle && <div className="text-xs text-gray-500 leading-tight">{subtitle}</div>}
+            {time && <div className="text-xs text-muted-foreground leading-tight" title={fullTime || time}>{time}</div>}
           </div>
         </div>
       ) : (
