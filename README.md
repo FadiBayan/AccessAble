@@ -116,7 +116,7 @@ NEXT_PUBLIC_SITE_URL=http://localhost:3000
 
 ```bash
 npm run build
-npm start
+npm run start
 ```
 
 App runs at: [http://localhost:3000](http://localhost:3000)
