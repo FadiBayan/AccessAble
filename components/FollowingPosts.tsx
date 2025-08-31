@@ -151,7 +151,8 @@ export function FollowingPosts({ currentUserId, refreshKey }: FollowingPostsProp
           const followingIds = followingData.map(follow => follow.following_id);
           
           // Separate posts into following and suggested
-          const following = transformedPosts.filter(post => followingIds.includes(post.user_id));
+          // Include user's own posts in following section, plus posts from people they follow
+          const following = transformedPosts.filter(post => followingIds.includes(post.user_id) || post.user_id === currentUserId);
           const suggested = transformedPosts.filter(post => !followingIds.includes(post.user_id) && post.user_id !== currentUserId);
           
           setFollowingPosts(following);

@@ -33,9 +33,19 @@ export function UserProfileSidebar({ profileData, isEditing, onAvatarUpload }: P
   const handleAvatarClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    console.log('🖼️ Avatar clicked, isEditing:', isEditing);
     if (isEditing) {
-      if (fileInputRef.current) fileInputRef.current.click();
+      console.log('🖼️ In editing mode, triggering file input');
+      if (fileInputRef.current) {
+        console.log('🖼️ File input ref found, clicking...');
+        // Clear the value first to ensure onChange fires even if same file is selected
+        fileInputRef.current.value = '';
+        fileInputRef.current.click();
+      } else {
+        console.log('🖼️ File input ref not found!');
+      }
     } else {
+      console.log('🖼️ Not in editing mode, showing profile picture');
       setShowProfilePicture(true);
     }
   };
@@ -75,7 +85,20 @@ export function UserProfileSidebar({ profileData, isEditing, onAvatarUpload }: P
                 type="file"
                 accept="image/*"
                 className="hidden"
-                onChange={onAvatarUpload}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  console.log('🖼️ File input onChange triggered:', file?.name, file?.size);
+                  if (file && onAvatarUpload) {
+                    console.log('🖼️ Calling onAvatarUpload with file:', file.name);
+                    onAvatarUpload(e);
+                  } else {
+                    console.log('🖼️ No file selected or onAvatarUpload not provided');
+                  }
+                }}
+                onClick={(e) => {
+                  // Prevent the click from bubbling up to the parent
+                  e.stopPropagation();
+                }}
                 aria-label="Upload new profile photo"
               />
               <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-full">

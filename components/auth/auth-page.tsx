@@ -11,7 +11,7 @@ import { getSupabaseClient } from '@/lib/supabaseClient';
 import { useRouter } from 'next/navigation';
 import { Textarea } from "@/components/ui/textarea";
 import { useAccessibility } from "@/components/accessibility-provider";
-import { ACCESSIBILITY_OPTIONS, ACCESSIBILITY_FEATURES } from "@/lib/constants";
+import { ACCESSIBILITY_FEATURES } from "@/lib/constants";
 
 export function AuthPage() {
   const [hydrated, setHydrated] = useState(false);
@@ -23,7 +23,6 @@ export function AuthPage() {
     email: "",
     password: "",
     confirmPassword: "",
-    accessibilityNeeds: [] as string[],
     accountType: "Individual",
     organizationName: "",
     organizationWebsite: "",
@@ -62,14 +61,7 @@ export function AuthPage() {
 
 
 
-  const handleAccessibilityToggle = (optionId: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      accessibilityNeeds: prev.accessibilityNeeds.includes(optionId)
-        ? prev.accessibilityNeeds.filter((id) => id !== optionId)
-        : [...prev.accessibilityNeeds, optionId],
-    }))
-  }
+
 
   // Mock users array for duplicate email check
   const mockUsers = [
@@ -155,7 +147,6 @@ export function AuthPage() {
             organization_website: formData.organizationWebsite,
             headquarters_location: formData.headquartersLocation,
             mission_statement: formData.missionStatement,
-            accessibility_needs: formData.accessibilityNeeds,
             accessibility_features: formData.accessibilityFeatures,
           }
         }
@@ -182,7 +173,6 @@ export function AuthPage() {
               organization_website: formData.organizationWebsite,
               headquarters_location: formData.headquartersLocation,
               mission_statement: formData.missionStatement,
-              accessibility_needs: formData.accessibilityNeeds,
               accessibility_features: formData.accessibilityFeatures,
             }
           ]);
@@ -443,41 +433,7 @@ export function AuthPage() {
                   {/* Always show sign-in/sign-up fields */}
                   {/* Remove the extra Confirm Password input so only one remains in the form for both account types. */}
 
-                  {/* Accessibility Needs Section */}
-                  <div className="space-y-4 p-6 bg-muted rounded-lg border border-border">
-                    <h3 className="text-lg font-medium text-foreground">Accessibility Needs (Optional)</h3>
-                    <p className="text-sm text-muted-foreground">Help us personalize your experience by sharing your accessibility needs.</p>
-                    <div className="grid grid-cols-1 gap-3">
-                      {ACCESSIBILITY_OPTIONS.map((option) => (
-                        <div
-                          key={option.id}
-                          className={`flex items-center space-x-3 p-4 rounded-lg border cursor-pointer transition-all ${
-                            (formData.accessibilityNeeds || []).includes(option.id)
-                              ? "bg-mustard/10 border-mustard"
-                              : "bg-background border-border hover:bg-accent"
-                          }`}
-                        >
-                          <input
-                            type="checkbox"
-                            checked={(formData.accessibilityNeeds || []).includes(option.id)}
-                            onChange={() => handleAccessibilityToggle(option.id)}
-                            aria-label={`Select ${option.label}`}
-                            className="h-4 w-4 text-mustard focus:ring-mustard border-input rounded"
-                          />
-                          <option.icon
-                            className={`h-5 w-5 ${
-                              (formData.accessibilityNeeds || []).includes(option.id)
-                                ? "text-mustard"
-                                : "text-muted-foreground"
-                            }`}
-                          />
-                          <span className="text-sm font-medium text-foreground">
-                            {option.label}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+
 
 
 
