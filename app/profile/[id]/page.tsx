@@ -22,10 +22,10 @@ async function getProfileAndPosts(userId: string) {
     .single();
   if (profileError || !profile) return { profile: null, posts: [] };
 
-  // Fetch user's posts
+  // Fetch user's posts with job metadata
   const { data: posts, error: postsError } = await supabase
     .from('posts')
-    .select('*')
+    .select('*, job_metadata')
     .eq('user_id', userId)
     .order('created_at', { ascending: false });
   return { profile, posts: posts || [] };

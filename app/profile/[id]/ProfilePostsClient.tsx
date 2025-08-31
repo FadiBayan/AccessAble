@@ -31,24 +31,48 @@ export default function ProfilePostsClient({ posts, profile, ngo }: { posts: any
                     <div className="text-sm text-muted-foreground mb-1">{new Date(post.created_at).toLocaleDateString()}</div>
                     <div className="font-semibold text-foreground mb-1 truncate">{post.title || 'Job'}</div>
                     <div className="text-sm text-muted-foreground line-clamp-3 mb-3">{post.content || ''}</div>
-                    <FeedPost
-                      key={post.id}
-                      postId={post.id}
-                      author={profile.user_metadata?.displayName || (ngo ? profile.organization_name : `${profile.first_name} ${profile.last_name}`)}
-                      title={post.title || ''}
-                      time={new Date(post.created_at).toLocaleString('en-US', { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true })}
-                      content={post.content || ''}
-                      likes={post.likes || 0}
-                      comments={post.comments || 0}
-                      shares={post.shares || 0}
-                      avatar={profile.avatar_url}
-                      isVerified={false}
-                      imageUrl={post.image_url}
-                      videoUrl={post.video_url}
-                      isJobPost={true}
-                      postUserId={profile.id}
-                      currentUserId={currentUserId || undefined}
-                    />
+                    
+                    {/* Job Details */}
+                    {post.job_metadata && (
+                      <div className="mb-3 space-y-1">
+                        {post.job_metadata.company_name && (
+                          <div className="text-xs text-muted-foreground">Company: {post.job_metadata.company_name}</div>
+                        )}
+                        {post.job_metadata.location && (
+                          <div className="text-xs text-muted-foreground">Location: {post.job_metadata.location}</div>
+                        )}
+                        {post.job_metadata.job_type && (
+                          <div className="text-xs text-muted-foreground">Type: {post.job_metadata.job_type}</div>
+                        )}
+                      </div>
+                    )}
+                    
+                    {/* Apply Button */}
+                    {post.job_metadata?.application_link && (
+                      <div className="mb-3">
+                        <a
+                          href={post.job_metadata.application_link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center justify-center w-full bg-mustard hover:bg-forest-green text-white font-medium py-2 px-4 rounded-lg transition-colors"
+                          onClick={() => {
+                            console.log('Profile Apply button clicked - URL:', post.job_metadata.application_link);
+                          }}
+                        >
+                          Apply Now
+                        </a>
+                      </div>
+                    )}
+                    
+                    {/* Job Post Link */}
+                    <div className="mt-3 pt-3 border-t border-border">
+                      <a
+                        href={`/posts/${post.id}`}
+                        className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        View full post →
+                      </a>
+                    </div>
                   </div>
                 ))}
               </div>

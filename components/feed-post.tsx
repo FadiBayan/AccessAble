@@ -53,6 +53,23 @@ interface FeedPostProps {
   isJobPost?: boolean
   currentUserId?: string
   postUserId?: string
+  jobMetadata?: {
+    company_name?: string
+    location?: string
+    is_remote?: boolean
+    job_type?: string
+    salary_range?: string
+    deadline?: string
+    application_link?: string
+    accessibility_features?: {
+      screenReaderSupport?: boolean
+      signLanguageSupport?: boolean
+      remoteWork?: boolean
+      flexibleHours?: boolean
+      assistiveTechnology?: boolean
+      accessibleOffice?: boolean
+    }
+  }
   onPostUpdate?: (postId: string, newTitle: string, newContent: string) => void
   onPostDelete?: (postId: string) => void
   onCommentChange?: () => void; // New prop for comment changes
@@ -74,6 +91,7 @@ export function FeedPost({
   isJobPost = false,
   currentUserId,
   postUserId,
+  jobMetadata,
   onPostUpdate,
   onPostDelete,
   onCommentChange
@@ -471,27 +489,52 @@ export function FeedPost({
   };
 
   const handleEditPost = async () => {
-    if (!isOwnPost || !editTitle.trim() || !editContent.trim()) return;
+    console.log('=== EDITING POST ===');
+    console.log('isOwnPost:', isOwnPost);
+    console.log('currentUserId:', currentUserId);
+    console.log('postUserId:', postUserId);
+    console.log('postId:', postId);
+    console.log('editTitle:', editTitle);
+    console.log('editContent:', editContent);
+    
+    if (!isOwnPost || !editContent.trim()) {
+      console.log('Edit blocked - isOwnPost:', isOwnPost, 'content valid:', !!editContent.trim());
+      return;
+    }
+    
     setEditPostLoading(true);
     setEditPostError(null);
     try {
       const supabase = getSupabaseClient();
-      const { error } = await supabase
-        .from('posts')
-        .update({ 
-          title: editTitle.trim(),
-          content: editContent.trim(),
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', postId);
-      if (!error) {
-        await fetchPost(); // Re-fetch post from backend
-        setIsEditing(false);
-        onPostUpdate?.(postId, editTitle.trim(), editContent.trim());
-      } else {
+      console.log('Updating post with data:', {
+        title: editTitle.trim(),
+        content: editContent.trim(),
+        updated_at: new Date().toISOString()
+      });
+      
+             const { error } = await supabase
+         .from('posts')
+         .update({ 
+           title: editTitle.trim() || null,
+           content: editContent.trim(),
+           updated_at: new Date().toISOString()
+         })
+         .eq('id', postId);
+      
+      console.log('Update result - error:', error);
+      
+             if (!error) {
+         setIsEditing(false);
+         onPostUpdate?.(postId, editTitle.trim() || '', editContent.trim());
+         console.log('✅ Post updated successfully');
+         // Force refresh the page to show updated content
+         window.location.reload();
+       } else {
+        console.error('❌ Error updating post:', error);
         setEditPostError(error.message || 'Error updating post.');
       }
     } catch (error: any) {
+      console.error('❌ Exception updating post:', error);
       setEditPostError(error.message || 'Error updating post.');
     } finally {
       setEditPostLoading(false);
@@ -523,20 +566,38 @@ export function FeedPost({
   };
 
   const handleDeletePost = async () => {
-    if (!isOwnPost) return;
+    console.log('=== DELETING POST ===');
+    console.log('isOwnPost:', isOwnPost);
+    console.log('currentUserId:', currentUserId);
+    console.log('postUserId:', postUserId);
+    console.log('postId:', postId);
+    
+    if (!isOwnPost) {
+      console.log('Delete blocked - not own post');
+      return;
+    }
     
     try {
       const supabase = getSupabaseClient();
+      console.log('Deleting post with ID:', postId);
+      
       const { error } = await supabase
         .from('posts')
         .delete()
         .eq('id', postId);
       
-      if (!error) {
-        onPostDelete?.(postId);
+      console.log('Delete result - error:', error);
+      
+             if (!error) {
+         console.log('✅ Post deleted successfully');
+         onPostDelete?.(postId);
+         // Force refresh the page to remove the deleted post
+         window.location.reload();
+       } else {
+        console.error('❌ Error deleting post:', error);
       }
     } catch (error) {
-      console.error('Error deleting post:', error);
+      console.error('❌ Exception deleting post:', error);
     }
   };
 
@@ -628,15 +689,15 @@ export function FeedPost({
       <div>
         {isEditing ? (
           <div className="space-y-2">
-            <input
-              type="text"
-              value={editTitle}
-              onChange={e => setEditTitle(e.target.value)}
-              className="w-full border border-input rounded px-3 py-2 text-base font-semibold mb-1 focus:outline-none focus:ring-2 focus:ring-mustard bg-background text-foreground"
-              placeholder="Title"
-              aria-label="Edit post title"
-              disabled={editPostLoading}
-            />
+                         <input
+               type="text"
+               value={editTitle}
+               onChange={e => setEditTitle(e.target.value)}
+               className="w-full border border-input rounded px-3 py-2 text-base font-semibold mb-1 focus:outline-none focus:ring-2 focus:ring-mustard bg-background text-foreground"
+               placeholder="Title (optional)"
+               aria-label="Edit post title (optional)"
+               disabled={editPostLoading}
+             />
             <textarea
               value={editContent}
               onChange={e => setEditContent(e.target.value)}
@@ -682,21 +743,38 @@ export function FeedPost({
                 />
               </div>
             )}
-            {videoUrl && (
-              <div className="mb-3">
-                <video 
-                  src={videoUrl} 
-                  controls 
-                  className="max-w-full h-auto rounded-lg"
-                  aria-label={`Video shared by ${author}`}
-                  onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                  }}
-                />
-              </div>
-            )}
-          </>
-        )}
+                         {videoUrl && (
+               <div className="mb-3">
+                 <video 
+                   src={videoUrl} 
+                   controls 
+                   className="max-w-full h-auto rounded-lg"
+                   aria-label={`Video shared by ${author}`}
+                   onError={(e) => {
+                     e.currentTarget.style.display = 'none';
+                   }}
+                 />
+               </div>
+             )}
+             
+             {/* Job Apply Button */}
+             {isJobPost && jobMetadata?.application_link && (
+               <div className="mt-4 pt-3 border-t border-border">
+                 <a
+                   href={jobMetadata.application_link}
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   className="inline-flex items-center text-mustard hover:text-forest-green font-medium transition-colors"
+                   onClick={() => {
+                     console.log('Apply button clicked - URL:', jobMetadata.application_link);
+                   }}
+                 >
+                   Apply for this position →
+                 </a>
+               </div>
+             )}
+           </>
+         )}
       </div>
       {/* Footer */}
       <div className="border-t border-border pt-2 mt-2 flex justify-between items-center text-sm text-muted-foreground">
@@ -806,6 +884,35 @@ export function FeedPost({
                 {editCommentError && <div className="text-destructive text-xs mt-1">{editCommentError}</div>}
               </div>
             ))}
+          </div>
+        </div>
+      )}
+      
+      {/* Delete Confirmation Dialog */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-card p-6 rounded-lg shadow-lg max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold text-foreground mb-4">Delete Post</h3>
+            <p className="text-muted-foreground mb-6">
+              Are you sure you want to delete this post? This action cannot be undone.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  handleDeletePost();
+                  setShowDeleteConfirm(false);
+                }}
+                className="px-4 py-2 text-sm font-medium bg-destructive text-white rounded hover:bg-destructive/90 transition-colors"
+              >
+                Delete
+              </button>
+            </div>
           </div>
         </div>
       )}

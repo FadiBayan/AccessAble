@@ -41,10 +41,10 @@ export default function PostsList() {
   const fetchPosts = async () => {
     try {
       const supabase = getSupabaseClient();
-      // First fetch posts
+      // First fetch posts with job metadata
       const { data: postsData, error: postsError } = await supabase
         .from('posts')
-        .select('*')
+        .select('*, job_metadata')
         .order('created_at', { ascending: false });
 
       if (postsError) throw postsError;
@@ -222,6 +222,7 @@ export default function PostsList() {
                 imageUrl={post.image_url}
                 videoUrl={post.video_url}
                 isJobPost={post.is_job_post}
+                jobMetadata={post.job_metadata}
                 currentUserId={currentUserId || undefined}
                 postUserId={post.user_id}
                 onPostUpdate={handlePostUpdate}

@@ -23,6 +23,16 @@ interface Post {
   is_job_post: boolean;
   author_name: string;
   avatar_url?: string;
+  job_metadata?: {
+    company_name?: string;
+    location?: string;
+    is_remote?: boolean;
+    job_type?: string;
+    salary_range?: string;
+    deadline?: string;
+    application_link?: string;
+    accessibility_features?: any;
+  };
 }
 
 export default function PostDetailPage() {
@@ -51,10 +61,10 @@ export default function PostDetailPage() {
         setLoading(true);
         const supabase = getSupabaseClient();
         
-        // Fetch the post
+        // Fetch the post with job metadata
         const { data: postData, error: postError } = await supabase
           .from('posts')
-          .select('*')
+          .select('*, job_metadata')
           .eq('id', postId)
           .single();
 
@@ -114,6 +124,7 @@ export default function PostDetailPage() {
           is_job_post: postData.is_job_post || false,
           author_name: authorName,
           avatar_url: profileData?.avatar_url,
+          job_metadata: postData.job_metadata,
         };
 
         setPost(transformedPost);
@@ -205,6 +216,7 @@ export default function PostDetailPage() {
             onPostDelete={(postId) => {
               router.push('/dashboard');
             }}
+            jobMetadata={post.job_metadata}
           />
         </div>
       </div>
