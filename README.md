@@ -109,7 +109,23 @@ NEXT_PUBLIC_SITE_URL=http://localhost:3000
 PERSPECTIVE_API_KEY=AIzaSyDHUZ5ZjT2RY6_K1Mypg63HzlUGvIcxTzk
 
 # Job Matching / Recommendations (Hugging Face API)
-HUGGINGFACE_API_KEY=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
+HUGGINGFACE_API_KEY= (your own key )
+
+
+👉 Important about Hugging Face key:
+
+To generate your own key:
+
+Create a free account at Hugging Face
+.
+Go to Settings → Access Tokens.
+
+Create a new token.
+
+Replace it in .env.local under HUGGINGFACE_API_KEY.
+
+This ensures job recommendations always work without interruption.
+
 ```
 
 👉 That’s it.
