@@ -47,10 +47,11 @@ export default function ProfileClient({ profile, posts, ngo }: ProfileClientProp
           supabase.from('user_follows').select('*', { count: 'exact', head: true }).eq('following_id', profile.id),
           supabase.from('user_follows').select('*', { count: 'exact', head: true }).eq('follower_id', profile.id),
         ]);
+        console.log('Fetched counts for user:', profile.id, 'followers:', followers, 'following:', following);
         setFollowersCount(followers || 0);
         setFollowingCount(following || 0);
       } catch (e) {
-        // ignore
+        console.error('Error fetching follow counts:', e);
       }
     }
     fetchCounts();
@@ -63,20 +64,28 @@ export default function ProfileClient({ profile, posts, ngo }: ProfileClientProp
         <div className="flex items-center justify-center gap-10">
           <FollowButton targetUserId={profile.id} currentUserId={currentUserId} showCount={false} />
           <button
-            className="text-center"
-            onClick={() => setFollowersOpen(true)}
+            className="text-center hover:bg-accent hover:scale-105 transition-all duration-200 rounded-lg p-3 cursor-pointer border border-transparent hover:border-border group"
+            onClick={() => {
+              console.log('Opening followers dialog for user:', profile.id);
+              setFollowersOpen(true);
+            }}
             aria-label="View followers"
+            title="Click to view followers"
           >
             <div className="text-2xl font-extrabold text-foreground text-center">{followersCount}</div>
-            <div className="text-xs text-muted-foreground text-center">Followers</div>
+            <div className="text-xs text-muted-foreground text-center group-hover:text-foreground">Followers</div>
           </button>
           <button
-            className="text-center"
-            onClick={() => setFollowingOpen(true)}
+            className="text-center hover:bg-accent hover:scale-105 transition-all duration-200 rounded-lg p-3 cursor-pointer border border-transparent hover:border-border group"
+            onClick={() => {
+              console.log('Opening following dialog for user:', profile.id);
+              setFollowingOpen(true);
+            }}
             aria-label="View following"
+            title="Click to view following"
           >
             <div className="text-2xl font-extrabold text-foreground text-center">{followingCount}</div>
-            <div className="text-xs text-muted-foreground text-center">Following</div>
+            <div className="text-xs text-muted-foreground text-center group-hover:text-foreground">Following</div>
           </button>
         </div>
 
@@ -154,9 +163,9 @@ export default function ProfileClient({ profile, posts, ngo }: ProfileClientProp
 
         {/* Followers Dialog */}
         <Dialog open={followersOpen} onOpenChange={setFollowersOpen}>
-          <DialogContent className="max-w-lg">
+          <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle className="text-foreground">Followers</DialogTitle>
+              <DialogTitle className="text-foreground">Followers ({followersCount})</DialogTitle>
             </DialogHeader>
             <FollowersList userId={profile.id} currentUserId={currentUserId} />
           </DialogContent>
@@ -164,9 +173,9 @@ export default function ProfileClient({ profile, posts, ngo }: ProfileClientProp
 
         {/* Following Dialog */}
         <Dialog open={followingOpen} onOpenChange={setFollowingOpen}>
-          <DialogContent className="max-w-lg">
+          <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle className="text-foreground">Following</DialogTitle>
+              <DialogTitle className="text-foreground">Following ({followingCount})</DialogTitle>
             </DialogHeader>
             <FollowingList userId={profile.id} currentUserId={currentUserId} />
           </DialogContent>

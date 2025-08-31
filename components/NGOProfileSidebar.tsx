@@ -10,6 +10,9 @@ import Link from "next/link";
 import { getSupabaseClient } from "@/lib/supabaseClient";
 import { useAccessibility } from "@/components/accessibility-provider";
 import { ProfilePictureViewer } from "@/components/profile-picture-viewer";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { FollowersList } from "@/components/FollowersList";
+import { FollowingList } from "@/components/FollowingList";
 
 export function NGOProfileSidebar({ showEditButton = true, isEditing = false }: { showEditButton?: boolean, isEditing?: boolean }) {
   const { settings } = useAccessibility();
@@ -19,6 +22,9 @@ export function NGOProfileSidebar({ showEditButton = true, isEditing = false }: 
   const [loading, setLoading] = useState(true);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [showProfilePicture, setShowProfilePicture] = useState(false);
+  const [followersOpen, setFollowersOpen] = useState(false);
+  const [followingOpen, setFollowingOpen] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchProfileAndCounts = async () => {
@@ -34,6 +40,7 @@ export function NGOProfileSidebar({ showEditButton = true, isEditing = false }: 
         setLoading(false);
         return;
       }
+      setCurrentUserId(user.id);
       const { data: profileData, error: profileError } = await supabase
         .from("profiles")
         .select("*")
@@ -55,6 +62,7 @@ export function NGOProfileSidebar({ showEditButton = true, isEditing = false }: 
         .select("*", { count: "exact", head: true })
         .eq("follower_id", user.id);
       setFollowing(followingCount || 0);
+      console.log('Dashboard sidebar - Fetched counts for user:', user.id, 'followers:', followersCount, 'following:', followingCount);
     } catch (error) {
       setLoading(false);
     } finally {
@@ -158,14 +166,30 @@ export function NGOProfileSidebar({ showEditButton = true, isEditing = false }: 
         <h2 className="text-xl font-bold text-foreground">{displayName}</h2>
         {displayTitle && <p className="text-sm mb-4 text-muted-foreground">{displayTitle}</p>}
         <div className="flex justify-around text-center mb-4">
-          <div>
+          <button
+            className="text-center hover:bg-accent hover:scale-105 transition-all duration-200 rounded-lg p-1.5 cursor-pointer border border-transparent hover:border-border group min-w-[60px]"
+            onClick={() => {
+              console.log('Opening followers dialog for user:', profile.id);
+              setFollowersOpen(true);
+            }}
+            aria-label="View followers"
+            title="Click to view followers"
+          >
             <p className="text-sm font-semibold text-foreground">{followers}</p>
-            <p className="text-xs text-muted-foreground">Followers</p>
-          </div>
-          <div>
+            <p className="text-xs text-muted-foreground group-hover:text-foreground">Followers</p>
+          </button>
+          <button
+            className="text-center hover:bg-accent hover:scale-105 transition-all duration-200 rounded-lg p-1.5 cursor-pointer border border-transparent hover:border-border group min-w-[60px]"
+            onClick={() => {
+              console.log('Opening following dialog for user:', profile.id);
+              setFollowingOpen(true);
+            }}
+            aria-label="View following"
+            title="Click to view following"
+          >
             <p className="text-sm font-semibold text-foreground">{following}</p>
-            <p className="text-xs text-muted-foreground">Following</p>
-          </div>
+            <p className="text-xs text-muted-foreground group-hover:text-foreground">Following</p>
+          </button>
         </div>
         {showEditButton && (
           <Link href="/profile">
@@ -202,6 +226,26 @@ export function NGOProfileSidebar({ showEditButton = true, isEditing = false }: 
       avatarUrl={avatarPreview || profile?.avatar_url}
       userName={displayName}
     />
+
+    {/* Followers Dialog */}
+    <Dialog open={followersOpen} onOpenChange={setFollowersOpen}>
+      <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-foreground">Followers ({followers})</DialogTitle>
+        </DialogHeader>
+        <FollowersList userId={profile.id} currentUserId={currentUserId} />
+      </DialogContent>
+    </Dialog>
+
+    {/* Following Dialog */}
+    <Dialog open={followingOpen} onOpenChange={setFollowingOpen}>
+      <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-foreground">Following ({following})</DialogTitle>
+        </DialogHeader>
+        <FollowingList userId={profile.id} currentUserId={currentUserId} />
+      </DialogContent>
+    </Dialog>
   </>
   );
 } 
