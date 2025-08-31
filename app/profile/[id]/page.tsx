@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import ProfileClient from './ProfileClient';
+import { ClickableAvatar } from '@/components/clickable-avatar';
 
 interface ProfilePageProps {
   params: { id: string };
@@ -59,10 +60,13 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                 <img src={profile.banner_url} alt="NGO Banner" className="object-cover w-full h-full" />
               ) : null}
               <div className="absolute left-1/2 -bottom-12 -translate-x-1/2">
-                <Avatar className="w-24 h-24 ring-4 ring-mustard border-4 border-white bg-white">
-                  <AvatarImage src={profile.avatar_url || '/placeholder-logo.png'} alt={profile.organization_name || 'NGO'} />
-                  <AvatarFallback>{(profile.user_metadata?.displayName || profile.organization_name || 'N')[0]}</AvatarFallback>
-                </Avatar>
+                <ClickableAvatar 
+                  src={profile.avatar_url || '/placeholder-logo.png'}
+                  alt={profile.organization_name || 'NGO'}
+                  fallback={profile.user_metadata?.displayName || profile.organization_name || 'N'}
+                  size="xl"
+                  className="ring-4 ring-mustard border-4 border-white bg-white"
+                />
               </div>
             </div>
             <div className="pt-16 pb-8 px-6 text-center">
@@ -146,10 +150,13 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
           {/* Subtle Banner */}
           <div className="h-28 bg-gradient-to-r from-mustard to-forest-green relative">
             <div className="absolute left-1/2 -bottom-12 -translate-x-1/2">
-              <Avatar className="w-24 h-24 ring-4 ring-mustard border-4 border-white bg-white">
-                <AvatarImage src={profile.avatar_url || '/placeholder-user.jpg'} alt={profile.user_metadata?.displayName || `${profile.first_name} ${profile.last_name}`} />
-                <AvatarFallback>{(profile.user_metadata?.displayName || `${profile.first_name} ${profile.last_name}`)[0]}</AvatarFallback>
-              </Avatar>
+              <ClickableAvatar 
+                src={profile.avatar_url || '/placeholder-user.jpg'}
+                alt={profile.user_metadata?.displayName || `${profile.first_name} ${profile.last_name}`}
+                fallback={profile.user_metadata?.displayName || `${profile.first_name} ${profile.last_name}`}
+                size="xl"
+                className="ring-4 ring-mustard border-4 border-white bg-white"
+              />
             </div>
           </div>
           <div className="pt-16 pb-8 px-6 text-center">

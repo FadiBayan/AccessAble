@@ -1,7 +1,8 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Camera } from "lucide-react";
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
+import { ProfilePictureViewer } from "@/components/profile-picture-viewer";
 
 interface ProfileData {
   firstName?: string;
@@ -21,6 +22,7 @@ interface ProfileSidebarProps {
 }
 
 export function UserProfileSidebar({ profileData, isEditing, onAvatarUpload }: ProfileSidebarProps) {
+  const [showProfilePicture, setShowProfilePicture] = useState(false);
   const isNGO = profileData.accountType === "NGO" || profileData.accountType === "NGO / Organization";
   const name = isNGO
     ? profileData.organizationName || "Organization"
@@ -28,16 +30,41 @@ export function UserProfileSidebar({ profileData, isEditing, onAvatarUpload }: P
   const subtitle = isNGO ? undefined : profileData.title;
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleAvatarClick = () => {
-    if (isEditing && fileInputRef.current) fileInputRef.current.click();
+  const handleAvatarClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (isEditing) {
+      if (fileInputRef.current) fileInputRef.current.click();
+    } else {
+      setShowProfilePicture(true);
+    }
+  };
+
+  const handleAvatarKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      if (isEditing) {
+        if (fileInputRef.current) fileInputRef.current.click();
+      } else {
+        setShowProfilePicture(true);
+      }
+    }
   };
 
   return (
-    <Card className="shadow-md rounded-xl overflow-hidden bg-card text-foreground">
+    <>
+      <Card className="shadow-md rounded-xl overflow-hidden bg-card text-foreground">
       <CardHeader className="relative p-0">
         <div className="h-20 bg-gradient-to-r from-mustard to-forest-green" />
-        <div className="absolute top-8 left-1/2 -translate-x-1/2 group cursor-pointer" onClick={handleAvatarClick} tabIndex={isEditing ? 0 : -1} aria-label={isEditing ? 'Change profile photo' : undefined} role="button">
-          <Avatar className="w-24 h-24 rounded-full ring-2 ring-mustard border-4 border-white shadow-md bg-white">
+        <div 
+          className="absolute top-8 left-1/2 -translate-x-1/2 group cursor-pointer" 
+          onClick={handleAvatarClick} 
+          onKeyDown={handleAvatarKeyDown}
+          tabIndex={0} 
+          aria-label={isEditing ? 'Change profile photo' : `View ${name}'s profile picture`} 
+          role="button"
+        >
+          <Avatar className="w-24 h-24 rounded-full ring-2 ring-mustard border-4 border-white shadow-md bg-white hover:ring-4 transition-all">
             <AvatarImage src={profileData.avatarUrl || '/placeholder-user.jpg'} alt={name} />
             <AvatarFallback>{name[0]}</AvatarFallback>
           </Avatar>
@@ -88,5 +115,13 @@ export function UserProfileSidebar({ profileData, isEditing, onAvatarUpload }: P
         )}
       </CardContent>
     </Card>
+
+    <ProfilePictureViewer
+      isOpen={showProfilePicture}
+      onClose={() => setShowProfilePicture(false)}
+      avatarUrl={profileData.avatarUrl}
+      userName={name}
+    />
+  </>
   );
 } 

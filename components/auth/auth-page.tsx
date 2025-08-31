@@ -6,11 +6,12 @@ import { useEffect, useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Eye, EyeOff, Shield, Accessibility, Volume2, VolumeX, Type, Contrast, MousePointer, Moon } from "lucide-react"
+import { EyeOff, Shield, VolumeX, Contrast, Moon } from "lucide-react"
 import { getSupabaseClient } from '@/lib/supabaseClient';
 import { useRouter } from 'next/navigation';
 import { Textarea } from "@/components/ui/textarea";
 import { useAccessibility } from "@/components/accessibility-provider";
+import { ACCESSIBILITY_OPTIONS, ACCESSIBILITY_FEATURES } from "@/lib/constants";
 
 export function AuthPage() {
   const [hydrated, setHydrated] = useState(false);
@@ -59,13 +60,7 @@ export function AuthPage() {
     });
   };
 
-  const accessibilityOptions = [
-    { id: "visual", label: "Visual Impairment", icon: Eye },
-    { id: "hearing", label: "Hearing Impairment", icon: Volume2 },
-    { id: "mobility", label: "Mobility Impairment", icon: MousePointer },
-    { id: "cognitive", label: "Cognitive Disability", icon: Type },
-    { id: "other", label: "Other", icon: Accessibility },
-  ]
+
 
   const handleAccessibilityToggle = (optionId: string) => {
     setFormData((prev) => ({
@@ -423,7 +418,7 @@ export function AuthPage() {
                     <div className="space-y-4 p-6 bg-muted rounded-lg border border-border">
                       <h3 className="text-lg font-medium text-foreground">Accessibility Features</h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        {["Screen Reader Support", "Sign Language Support", "Assistive Technology Provided", "Remote Work Options", "Flexible Hours", "Accessible Office Space"].map(feature => (
+                        {ACCESSIBILITY_FEATURES.map(feature => (
                           <label key={feature} className="flex items-center space-x-3 p-3 bg-background rounded-lg border border-border hover:bg-accent cursor-pointer transition-colors">
                             <input
                               type="checkbox"
@@ -453,7 +448,7 @@ export function AuthPage() {
                     <h3 className="text-lg font-medium text-foreground">Accessibility Needs (Optional)</h3>
                     <p className="text-sm text-muted-foreground">Help us personalize your experience by sharing your accessibility needs.</p>
                     <div className="grid grid-cols-1 gap-3">
-                      {accessibilityOptions.map((option) => (
+                      {ACCESSIBILITY_OPTIONS.map((option) => (
                         <div
                           key={option.id}
                           className={`flex items-center space-x-3 p-4 rounded-lg border cursor-pointer transition-all ${

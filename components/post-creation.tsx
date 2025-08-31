@@ -4,7 +4,7 @@ import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { ImageIcon, Video, Mic, Send, Loader2 } from "lucide-react";
+import { ImageIcon, Video, Send, Loader2 } from "lucide-react";
 import { getSupabaseClient } from "@/lib/supabaseClient";
 import { filterContent, hasBadWords } from "@/lib/content-filter";
 import { moderateText } from "@/lib/moderation";
@@ -242,15 +242,7 @@ export function PostCreation({ onPostCreated }: PostCreationProps) {
                     onChange={handleVideoChange}
                   />
                 </button>
-                <button
-                  type="button"
-                  disabled
-                  className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-muted-foreground hover:bg-accent px-2 sm:px-3 py-1.5 sm:py-2 rounded-md transition focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                  aria-label="Add audio (coming soon)"
-                >
-                  <Mic className="h-4 w-4 sm:h-5 sm:w-5" />
-                  <span className="hidden sm:inline">Audio</span>
-                </button>
+
               </div>
               <button
                 onClick={handlePost}

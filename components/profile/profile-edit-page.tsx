@@ -16,11 +16,6 @@ import {
   Plus,
   X,
   Camera,
-  Accessibility,
-  Eye,
-  Volume2,
-  MousePointer,
-  Type,
   Contrast,
   VolumeX,
   Shield,
@@ -38,6 +33,7 @@ import Link from "next/link";
 import { useAccessibility } from "@/components/accessibility-provider";
 import { UserProfileSidebar } from "@/components/profile/UserProfileSidebar";
 import { ProfilePictureCropper } from "@/components/profile-picture-cropper";
+import { ACCESSIBILITY_OPTIONS, ACCESSIBILITY_FEATURES } from "@/lib/constants";
 
 interface ProfileData {
   firstName: string;
@@ -129,13 +125,7 @@ export function ProfileEditPage() {
   const { settings } = useAccessibility();
   const isDarkMode = settings.highContrast; // Using highContrast setting for dark mode
 
-  const accessibilityOptions = [
-    { id: "visual", label: "Visual Impairment", icon: Eye },
-    { id: "hearing", label: "Hearing Impairment", icon: Volume2 },
-    { id: "mobility", label: "Mobility Impairment", icon: MousePointer },
-    { id: "cognitive", label: "Cognitive Disability", icon: Type },
-    { id: "other", label: "Other", icon: Accessibility },
-  ]
+
 
   // 3. When setting profileData after fetching from Supabase
   useEffect(() => {
@@ -442,14 +432,7 @@ export function ProfileEditPage() {
                     <div>
                       <label>Accessibility Features</label>
                       <div className="flex flex-wrap gap-2">
-                        {[
-                          "Screen Reader Support", 
-                          "Sign Language Support", 
-                          "Assistive Technology Provided", 
-                          "Remote Work Options", 
-                          "Flexible Hours", 
-                          "Accessible Office Space"
-                        ].map(feature => {
+                        {ACCESSIBILITY_FEATURES.map(feature => {
                           const selected = profileData.accessibilityFeatures.includes(feature);
                           return (
                             <button
@@ -669,7 +652,7 @@ export function ProfileEditPage() {
                   <CardContent className="space-y-6">
                     <h3 className="text-xl font-bold text-foreground mb-4">Accessibility & Preferences</h3>
                     <div className="flex flex-wrap gap-2">
-                      {accessibilityOptions.map((option) => (
+                      {ACCESSIBILITY_OPTIONS.map((option) => (
                         <div
                           key={option.id}
                           className={`flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer transition-colors select-none border

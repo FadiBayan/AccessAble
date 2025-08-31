@@ -6,18 +6,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Switch } from "@/components/ui/switch"
 import { Slider } from "@/components/ui/slider"
 import { 
-  Contrast, 
   Type, 
   Volume2, 
   VolumeX, 
   ZoomIn, 
   ZoomOut,
-  Eye,
   Ear,
-  Hand,
-  Brain,
-  X,
-  Moon
+  Moon,
+  Eye
 } from "lucide-react"
 import { useAccessibility } from "./accessibility-provider"
 
@@ -52,12 +48,6 @@ export function AccessibilitySettingsModal({ isOpen, onClose }: AccessibilitySet
 
   const handleZoom = (level: number) => {
     updateSettings({ zoomLevel: level })
-  }
-
-
-
-  const handleDisabilityToggle = (type: keyof typeof settings, enabled: boolean) => {
-    updateSettings({ [type]: enabled })
   }
 
   return (
@@ -181,86 +171,7 @@ export function AccessibilitySettingsModal({ isOpen, onClose }: AccessibilitySet
             </div>
           </div>
 
-          {/* Disability Profile */}
-          <div className="space-y-6">
-            <h3 className="text-lg font-medium text-foreground flex items-center gap-3">
-              <Brain className="h-5 w-5 text-mustard" aria-hidden="true" />
-              Disability Profile
-            </h3>
-            <p className="text-sm text-muted-foreground pl-8">
-              Help us personalize your experience by sharing your accessibility needs.
-            </p>
-            
-            <div className="space-y-4 pl-8">
-              <div className="flex items-center justify-between p-4 bg-muted rounded-lg border border-border">
-                <div className="flex items-center space-x-3">
-                  <Eye className="h-5 w-5 text-mustard" aria-hidden="true" />
-                  <div>
-                    <label htmlFor="visual-impairment" className="text-sm font-medium text-foreground">Visual Impairment</label>
-                    <p className="text-xs text-muted-foreground mt-1">Optimize for visual accessibility needs</p>
-                  </div>
-                </div>
-                <Switch
-                  id="visual-impairment"
-                  checked={settings.visualImpairment}
-                  onCheckedChange={(enabled) => handleDisabilityToggle('visualImpairment', enabled)}
-                  aria-label="Toggle visual impairment accommodation"
-                  className="switch"
-                />
-              </div>
 
-              <div className="flex items-center justify-between p-4 bg-muted rounded-lg border border-border">
-                <div className="flex items-center space-x-3">
-                  <Ear className="h-5 w-5 text-mustard" aria-hidden="true" />
-                  <div>
-                    <label htmlFor="hearing-impairment" className="text-sm font-medium text-foreground">Hearing Impairment</label>
-                    <p className="text-xs text-muted-foreground mt-1">Optimize for hearing accessibility needs</p>
-                  </div>
-                </div>
-                <Switch
-                  id="hearing-impairment"
-                  checked={settings.hearingImpairment}
-                  onCheckedChange={(enabled) => handleDisabilityToggle('hearingImpairment', enabled)}
-                  aria-label="Toggle hearing impairment accommodation"
-                  className="switch"
-                />
-              </div>
-
-              <div className="flex items-center justify-between p-4 bg-muted rounded-lg border border-border">
-                <div className="flex items-center space-x-3">
-                  <Hand className="h-5 w-5 text-mustard" aria-hidden="true" />
-                  <div>
-                    <label htmlFor="motor-impairment" className="text-sm font-medium text-foreground">Motor Impairment</label>
-                    <p className="text-xs text-muted-foreground mt-1">Optimize for motor accessibility needs</p>
-                  </div>
-                </div>
-                <Switch
-                  id="motor-impairment"
-                  checked={settings.motorImpairment}
-                  onCheckedChange={(enabled) => handleDisabilityToggle('motorImpairment', enabled)}
-                  aria-label="Toggle motor impairment accommodation"
-                  className="switch"
-                />
-              </div>
-
-              <div className="flex items-center justify-between p-4 bg-muted rounded-lg border border-border">
-                <div className="flex items-center space-x-3">
-                  <Brain className="h-5 w-5 text-mustard" aria-hidden="true" />
-                  <div>
-                    <label htmlFor="cognitive-impairment" className="text-sm font-medium text-foreground">Cognitive Impairment</label>
-                    <p className="text-xs text-muted-foreground mt-1">Optimize for cognitive accessibility needs</p>
-                  </div>
-                </div>
-                <Switch
-                  id="cognitive-impairment"
-                  checked={settings.cognitiveImpairment}
-                  onCheckedChange={(enabled) => handleDisabilityToggle('cognitiveImpairment', enabled)}
-                  aria-label="Toggle cognitive impairment accommodation"
-                  className="switch"
-                />
-              </div>
-            </div>
-          </div>
         </div>
       </DialogContent>
     </Dialog>
